@@ -4,7 +4,8 @@ services:
     volumes:
       - ./app:/var/www/html
     environment:
-      - DATABASE_URL=mysql://user:pass@db:3306/isms_db
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     depends_on:
       - db
 
