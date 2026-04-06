@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Log in!{% endblock %}
+
+{% block body %}
+    <div class="flex flex-col items-center">
+        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4 mt-10">
+            <legend class="fieldset-legend">Login</legend>
+
+            <form method="post">
+
+                {% if not app.user %}
+                    <label class="label">Email</label>
+                    <input type="email" value="{{ last_username }}" name="_username" id="username" placeholder="Email"
+                           class="input"/>
+
+                    <label class="label">Password</label>
+                    <input type="password" name="_password" id="password"
+                           autocomplete="current-password"
+                           required class="input" placeholder="Password"/>
+
+
+                    <input type="hidden" name="_csrf_token" data-controller="csrf-protection"
+                           value="{{ csrf_token('auth_token') }}">
+
+                    <input type="checkbox" name="_remember_me" id="_remember_me" class="mt-4">
+                    <label for="_remember_me">Remember me</label>
+
+                    <div class="flex flex-row items-center mt-4 justify-between">
+                        <button type="submit" class="btn btn-neutral ">Login</button>
+                        <span>Don't have an account? <a href="/register"
+                                                        class="underline">Register</a></span>
+                    </div>
+                {% endif %}
+
+
+
+                {% if error %}
+                    <div
+                        class="alert alert-danger ">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                {% endif %}
+
+                {% if app.user %}
+                    <div class="mb-3">
+                        You are logged in as {{ app.user.userIdentifier }} <a
+                            href="{{ path('app_logout') }}" class="underline">Logout</a>
+                    </div>
+                {% endif %}
+
+            </form>
+
+        </fieldset>
+    </div>
+{% endblock %}
+
