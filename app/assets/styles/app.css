@@ -1,3 +1,4 @@
-body {
-    background-color: skyblue;
-}
+@import "tailwindcss";
+@plugin "../../node_modules/daisyui";
+
+
