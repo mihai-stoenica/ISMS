@@ -40,6 +40,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
+    private ?SupplierProfile $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -135,6 +138,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getUser(): ?SupplierProfile
+    {
+        return $this->user;
+    }
+
+    public function setUser(SupplierProfile $user): static
+    {
+        // set the owning side of the relation if necessary
+        if ($user->getUser() !== $this) {
+            $user->setUser($this);
+        }
+
+        $this->user = $user;
 
         return $this;
     }

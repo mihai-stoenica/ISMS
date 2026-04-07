@@ -5,27 +5,13 @@
 {% block body %}
 
     <div class="flex flex-col items-center">
-        <div x-data="{ role: 'user' }" class="flex flex-col items-center mt-10">
         <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
             <legend class="fieldset-legend">Register</legend>
 
-            <div class="flex gap-4 mb-6 justify-center">
-                <label class="label cursor-pointer gap-2">
-                    <input type="radio" name="role_selector" class="radio radio-primary"
-                           value="user" x-model="role" checked />
-                    <span class="label-text font-bold">Staff member</span>
-                </label>
-                <label class="label cursor-pointer gap-2">
-                    <input type="radio" name="role_selector" class="radio radio-secondary"
-                           value="supplier" x-model="role" />
-                    <span class="label-text font-bold">Supplier</span>
-                </label>
-            </div>
-
             {%if not app.user%}
-                {{ form_start(registrationForm) }}
 
-                <div class="mb-4">
+                {{ form_start(registrationForm) }}
+                <div class="">
                     {{ form_label(registrationForm.name, null, {'label_attr': {'class': 'label'}}) }}
                     {{ form_widget(registrationForm.name, {'attr': {
                         'class': 'input w-full',
@@ -37,7 +23,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div >
                     {{ form_label(registrationForm.email, null, {'label_attr': {'class': 'label'}}) }}
                     {{ form_widget(registrationForm.email, {'attr': {
                         'class': 'input w-full',
@@ -49,7 +35,7 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
+                <div >
                     {{ form_widget(registrationForm.plainPassword) }}
 
                     <div class="text-error text-sm mt-1">
@@ -57,25 +43,19 @@
                     </div>
                 </div>
 
-                {#<div x-show="role === 'supplier'" x-cloak class="mt-4 border-t border-base-300 pt-4">
-                    <h3 class="text-sm font-bold mb-2 text-secondary">Supplier Details</h3>
-                    {{ form_row(registrationForm.uniqueIdentifierCode) }}
-                    {{ form_row(registrationForm.phoneNumber) }}
-                    {{ form_row(registrationForm.address) }}
-                </div>#}
-
                 {% if registrationForm.vars.errors|length > 0 %}
                     <div class="text-error mb-4">
                         {{ form_errors(registrationForm) }}
                     </div>
                 {% endif %}
 
-                <div class="flex flex-row items-center mt-4 justify-between">
+                <div class="flex flex-row items-center  justify-between">
                     <button type="submit" class="btn btn-neutral mt-4">Register</button>
                     <span>Already have an account? <a href="/login"
                                                     class="underline">Login</a></span>
                 </div>
 
+                <p class="mt-4">Register as a supplier <a class="underline" href="/register/supplier">here</a></p>
 
                 {{ form_end(registrationForm) }}
 
@@ -88,7 +68,7 @@
             {% endif %}
 
         </fieldset>
-        </div>
+
     </div>
 
 {% endblock %}
