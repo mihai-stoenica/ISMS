@@ -6,14 +6,13 @@ use App\Entity\SupplierProfile;
 use App\Entity\User;
 use App\Form\RegistrationType;
 use App\Form\SupplierRegistrationType;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\RegistrationService;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class SecurityController extends AbstractController
 {
@@ -41,9 +40,8 @@ class SecurityController extends AbstractController
     #[Route('/register', name: 'app_register_staff')]
     public function register(
         Request $request,
-        UserPasswordHasherInterface $hasher,
-        EntityManagerInterface $em,
         Security $security,
+        RegistrationService $registrationService
     ): Response
     {
         $user = new User();
@@ -51,12 +49,7 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($hasher->hashPassword($user, $form->get('plainPassword')->getData()));
-            $user->setRoles(['ROLE_STAFF_PENDING']);
-            $user->setIsAccepted(false);
-
-            $em->persist($user);
-            $em->flush();
+            $registrationService->registerStaff($user, $form->get('plainPassword')->getData());
             return $security->login($user, 'form_login');
         }
 
@@ -64,11 +57,10 @@ class SecurityController extends AbstractController
     }
 
     #[Route(path: '/register/supplier', name: 'app_register_supplier')]
-    public function registerSupplier(
+    public function register_supplier(
         Request $request,
-        UserPasswordHasherInterface $hasher,
-        EntityManagerInterface $em,
-        Security $security
+        Security $security,
+        RegistrationService $registrationService
     ) : Response
     {
         $supplierProfile = new SupplierProfile();
@@ -76,20 +68,10 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var \App\Entity\User $user */
-            $user = $supplierProfile->getUser();
-
-            $plainPassword = $form->get('user')->get('plainPassword')->getData();
-            $user->setPassword($hasher->hashPassword($user, $plainPassword));
-
-            $user->setRoles(['ROLE_SUPPLIER_PENDING']);
-            $user->setIsAccepted(false);
-
-            $supplierProfile->setUser($user);
-
-            $em->persist($user);
-            $em->persist($supplierProfile);
-            $em->flush();
+            $user = $registrationService->registerSupplier(
+                $supplierProfile,
+                $form->get('user')->get('plainPassword')->getData()
+            );
 
             return $security->login($user, 'form_login');
         }
