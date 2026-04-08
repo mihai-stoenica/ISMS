@@ -27,7 +27,7 @@ class RegistrationService
     public function registerSupplier(SupplierProfile $profile, string $password) : User {
         $user = $profile->getUser();
         $user->setPassword($this->hasher->hashPassword($user, $password));
-        $user->setRoles(['ROL_SUPPLIER_PENDING']);
+        $user->setRoles(['ROLE_SUPPLIER_PENDING']);
         $user->setIsAccepted(false);
 
         $this->em->persist($user);

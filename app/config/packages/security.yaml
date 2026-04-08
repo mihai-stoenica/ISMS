@@ -43,6 +43,7 @@ security:
     - { path: ^/register, roles: PUBLIC_ACCESS }
     - { path: ^/logout, roles: PUBLIC_ACCESS }
     - { path: ^/$, roles: IS_AUTHENTICATED_FULLY }
+    - { path: ^/staff, roles: [ROLE_MANAGER] }
     - { path: ^/, roles: [ROLE_STAFF, ROLE_SUPPLIER, ROLE_MANAGER] }
 
 

@@ -1,4 +1,7 @@
 @import "tailwindcss";
 @plugin "../../node_modules/daisyui";
 
+* {
+    box-sizing: border-box;
+}
 
