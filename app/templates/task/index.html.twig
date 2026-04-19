@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block body %}
+    <div class="flex h-screen bg-base-100">
+        <aside class="w-64 border-r border-base-300 p-4 space-y-8">
+            <form method="GET">
+                <div>
+                    <div class="flex justify-between mb-4">
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Staff</span>
+                            <input type="radio"
+                                   name="type"
+                                   value="staff"
+                                   class="radio radio-primary"
+                                {{ app.request.query.get('type') == 'staff' ? 'checked' : '' }} />
+                        </label>
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Suppliers</span>
+                            <input type="radio"
+                                   name="type"
+                                   value="supplier"
+                                   class="radio radio-secondary"
+                                {{ app.request.query.get('type') == 'supplier' ? 'checked' : '' }} />
+                        </label>
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Manager</span>
+                            <input type="radio"
+                                   name="type"
+                                   value="manager"
+                                   class="radio radio-success"
+                                {{ app.request.query.get('type') == 'manager' ? 'checked' : '' }} />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <div class="flex justify-between mb-4">
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Active</span>
+                            <input type="radio"
+                                   name="status"
+                                   value="active"
+                                   class="radio"
+                                {{ app.request.query.get('status') == 'active' ? 'checked' : '' }} />
+                        </label>
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Pending</span>
+                            <input type="radio"
+                                   name="status"
+                                   value="pending"
+                                   class="radio"
+                                {{ app.request.query.get('status') == 'pending' ? 'checked' : '' }} />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <label class="label font-bold">Search</label>
+                    <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
+                </div>
+
+                <button class="btn btn-primary w-full mt-4">Apply Filters</button>
+                <a href="{{ path('app_staff') }}" class="btn btn-error w-full mt-4">Reset All</a>
+            </form>
+        </aside>
+
+        {#<main class="flex-1 p-6 flex justify-center">
+            <div class="w-full max-w-5xl">
+                <div class="overflow-x-auto border rounded-box border-base-300">
+                    <table class="table table-zebra w-full">
+                        <thead class="bg-base-200">
+                        <tr>
+                            <th class="text-lg">Name</th>
+                            <th class="text-lg">Email</th>
+                            <th class="text-lg">Role</th>
+                            <th class="text-lg text-center">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.name }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>
+                                <span class="badge {{ user.isAccepted ? 'badge-success' : 'badge-warning' }}">
+                                    {{ user.roles[0]|replace({'ROLE_': '', '_PENDING': ''})|title }}
+                                </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="flex justify-center gap-2">
+                                        {% if not user.isAccepted %}
+                                            <form
+                                                action="{{ path('app_staff_accept', {'id': user.id}) }}" method="POST"
+                                            >
+                                                <button class="btn btn-sm btn-success w-24">Accept</button>
+                                            </form>
+                                            <form
+                                                action="{{ path('app_staff_reject', {'id': user.id}) }}" method="POST"
+                                                onsubmit="return confirm('Are you sure you want to REJECT this user? This will permanently DELETE their account.');"
+                                            >
+                                                <button class="btn btn-sm btn-error w-24">Reject</button>
+                                            </form>
+                                        {% else %}
+                                            <form action="{{ path('app_staff_promote', {'id': user.id}) }}" method="POST">
+                                                <button
+                                                    class="btn btn-sm btn-outline w-24"
+                                                    {{ 'ROLE_MANAGER' in user.roles or 'ROLE_SUPPLIER' in user.roles ? 'disabled' }}
+                                                >
+                                                    Promote
+                                                </button>
+                                            </form>
+                                            <form action="{{ path('app_staff_demote', {'id': user.id}) }}" method="POST">
+                                                <button
+                                                    class="btn btn-sm btn-ghost w-24"
+                                                    {{ ('ROLE_STAFF' in user.roles and 'ROLE_MANAGER' not in user.roles) or 'ROLE_SUPPLIER' in user.roles ? 'disabled' }}
+                                                >
+                                                    Demote
+                                                </button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-10">No users found matching filters.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>#}
+    </div>
+{% endblock %}
