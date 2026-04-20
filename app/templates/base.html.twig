@@ -19,6 +19,18 @@
         {% endif %}
     </head>
     <body>
+        <div class="toast toast-bottom toast-end z-50">
+            {% for messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-error shadow-lg">
+                        <span>{{ message }}</span>
+                    </div>
+
+                {% endfor %}
+            {% endfor %}
+
+        </div>
         {% block body %}{% endblock %}
+        {% block modals %} {% endblock %}
     </body>
 </html>

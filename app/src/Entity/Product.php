@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\Location;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -38,6 +39,9 @@ class Product
      */
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'product')]
     private Collection $tasks;
+
+    #[ORM\Column(enumType: Location::class)]
+    private ?Location $location = null;
 
     public function __construct()
     {
@@ -147,6 +151,18 @@ class Product
                 $task->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getLocation(): ?Location
+    {
+        return $this->location;
+    }
+
+    public function setLocation(Location $location): static
+    {
+        $this->location = $location;
 
         return $this;
     }

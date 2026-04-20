@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Task;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +17,36 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    //    /**
-    //     * @return Task[] Returns an array of Task objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('t.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findBySearchParams(?string $status, ?string $search, ?string $order = null, ?User $employee = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('t');
 
-    //    public function findOneBySomeField($value): ?Task
-    //    {
-    //        return $this->createQueryBuilder('t')
-    //            ->andWhere('t.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        if($employee){
+            $queryBuilder
+                ->andWhere('t.employee = :employee')
+                ->setParameter('employee', $employee);
+        }
+
+        if($status) {
+            $queryBuilder
+                ->andWhere('t.status = :status')
+                ->setParameter('status', $status);
+        }
+
+        if($search) {
+            $queryBuilder
+                ->leftJoin('t.product', 'p')
+                ->leftJoin('t.manager', 'm')
+                ->leftJoin('t.employee', 'e')
+                ->andWhere('p.name LIKE :search OR e.name LIKE :search OR m.name LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if($order == 'urgent') {
+            $queryBuilder
+                ->orderBy('t.created_at', 'ASC');
+
+        }
+        return $queryBuilder->getQuery()->getResult();
+    }
 }
