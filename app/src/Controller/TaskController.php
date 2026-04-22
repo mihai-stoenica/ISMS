@@ -10,6 +10,7 @@ use App\Repository\TaskRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -18,8 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class TaskController extends AbstractController
 {
     #[Route('/task', name: 'app_task')]
-    #[IsGranted('ROLE_MANAGER')]
-    #[IsGranted('ROLE_STAFF')]
+    #[IsGranted(new Expression('is_granted("ROLE_MANAGER") or is_granted("ROLE_STAFF")'))]
     public function index(
         TaskRepository $taskRepository,
         Request $request,
@@ -31,6 +31,7 @@ final class TaskController extends AbstractController
         $search = $request->query->get('search');
         $order = $request->query->get('order');
 
+        /** @var User $user */
         $user = $this->getUser();
 
         $form = null;
@@ -43,39 +44,15 @@ final class TaskController extends AbstractController
 
             if ($form->isSubmitted() && $form->isValid()) {
 
-                $productTasks = $newTask->getProduct()->getTasks();
-
-                $isProductBusy = $productTasks->exists(function (int $key, Task $task)  {
-                   return $task->getStatus() === TaskStatus::ASSIGNED
-                       || $task->getStatus() === TaskStatus::PENDING;
-                });
-
-                if($isProductBusy) {
-                    $this->addFlash('error', "This product is already assigned to a task");
+                if($message = $taskService->getErrorMessage($newTask)) {
+                    $this->addFlash('error', $message);
 
                     return $this->redirectToRoute('app_task');
                 }
 
-                if($newTask->getDestination() == $newTask->getProduct()->getLocation()) {
-                    $this->addFlash('error', "The destination must be different from the source");
+                $taskService->mapTask($newTask, $user);
 
-                    return $this->redirectToRoute('app_task');
-                }
-
-                if(!in_array('ROLE_STAFF', $newTask->getEmployee()->getRoles())) {
-                    $this->addFlash('error', "You can only assign tasks to a staff member");
-
-                    return $this->redirectToRoute('app_task');
-                }
-
-                $newTask->setManager($user);
-                $newTask->setStatus(TaskStatus::ASSIGNED);
-                $newTask->setCreatedAt(new \DateTimeImmutable());
-
-                $newTask->setSource($newTask->getProduct()->getLocation());
-
-                $entityManager->persist($newTask);
-                $entityManager->flush();
+                $taskService->sendTaskAssignedEmail($newTask);
 
                 return $this->redirectToRoute('app_task');
             }

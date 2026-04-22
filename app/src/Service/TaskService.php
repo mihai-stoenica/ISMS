@@ -5,12 +5,16 @@ namespace App\Service;
 use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\TaskStatus;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\Mailer\MailerInterface;
 
 class TaskService
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
+        private MailerInterface $mailer,
     ) {}
 
     public function acceptTask(Task $task, User $user) : void {
@@ -30,9 +34,63 @@ class TaskService
             return;
         }
         $task->setStatus(TaskStatus::COMPLETED);
-        $task->setCompletedAt(new \DateTimeImmutable());
+        $task->setCompletedAt(new DateTimeImmutable());
         $task->getProduct()->setLocation($task->getDestination());
         $this->entityManager->persist($task);
         $this->entityManager->flush();
+    }
+
+    public function getErrorMessage(Task $newTask) : ?string
+    {
+        $productTasks = $newTask->getProduct()->getTasks();
+
+        $isProductBusy = $productTasks->exists(function (int $key, Task $task)  {
+            return $task->getStatus() === TaskStatus::ASSIGNED
+                || $task->getStatus() === TaskStatus::PENDING;
+        });
+
+        if($isProductBusy) {
+            return "This product is already assigned to a task";
+        }
+
+        if($newTask->getDestination() == $newTask->getProduct()->getLocation()) {
+            return "The destination must be different from the source";
+        }
+
+        if(!in_array('ROLE_STAFF', $newTask->getEmployee()->getRoles())) {
+            return "You can only assign tasks to a staff member";
+        }
+
+        return null;
+    }
+
+    public function mapTask(Task $newTask, User $user) : void
+    {
+        $newTask->setManager($user);
+        $newTask->setStatus(TaskStatus::ASSIGNED);
+        $newTask->setCreatedAt(new DateTimeImmutable());
+        $newTask->setSource($newTask->getProduct()->getLocation());
+
+        $this->entityManager->persist($newTask);
+        $this->entityManager->flush();
+    }
+
+    public function sendTaskAssignedEmail(Task $task) : void
+    {
+        if(!$task->getEmployee() || !$task->getEmployee()->getEmail()) {
+            return;
+        }
+
+        $email = new TemplatedEmail()
+            ->from('warehouse@demomailtrap.co')
+            ->to($task->getEmployee()->getEmail())
+            ->subject('New task assigned: ' . $task->getProduct()->getName())
+            ->htmlTemplate('email/task_assigned.html.twig')
+            ->context([
+                'task' => $task,
+            ]);
+
+        $this->mailer->send($email);
+
     }
 }
