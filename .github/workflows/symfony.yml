@@ -41,3 +41,4 @@ jobs:
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       working-directory: ./app
+    - uses: michaelw90/PHP-Lint@master
