@@ -22,7 +22,7 @@ final class StaffController extends AbstractController
     {
         $status = $request->query->get('status');
         $type = $request->query->get('type');
-        $search = $request-  >query->get('search');
+        $search = $request->query->get('search');
 
         $users = $userRepository->findBySearchParams($status, $type, $search);
 
