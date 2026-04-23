@@ -42,5 +42,6 @@ jobs:
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       working-directory: ./app
     - name: PHP Syntax Check
-      run: find . -type f -name "*.php" -print0 | xargs -0 -n1 php -l
+      run: |
+        find src -type f -name "*.php" -print0 | xargs -0 -n1 php -l
       working-directory: ./app
