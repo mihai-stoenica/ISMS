@@ -70,19 +70,19 @@ class TaskService
         });
 
         if($isProductBusy) {
-            return "This product is already assigned to a task";
+            return "This product is already assigned to a task.";
         }
 
         if($newTask->getDestination() == $newTask->getProduct()->getLocation()) {
-            return "The destination must be different from the source";
+            return "The destination must be different from the source.";
         }
 
         if(!in_array('ROLE_STAFF', $newTask->getEmployee()->getRoles())) {
-            return "You can only assign tasks to a staff member";
+            return "You can only assign tasks to a staff member.";
         }
 
         if(!$this->isLocationEmpty($newTask->getDestination())) {
-            return "This location is already in use";
+            return "This location is already in use.";
         }
 
         return null;
