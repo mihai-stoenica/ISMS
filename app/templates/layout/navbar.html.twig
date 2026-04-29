@@ -1,0 +1,46 @@
+<div class="navbar bg-base-100 shadow-sm">
+    <div class="flex-1">
+        <a class="btn btn-ghost text-xl">WareBros</a>
+
+
+        <a href="#" class="btn btn-ghost btn-sm">About</a>
+
+
+        {% if is_granted('ROLE_MANAGER') %}
+
+            <a href="#" class="btn btn-ghost btn-sm">Stock</a>
+            <a href="{{ path('app_staff') }}" class="btn btn-ghost btn-sm">Management</a>
+            <a href="{{ path('app_task') }}" class="btn btn-ghost btn-sm">Tasks</a>
+            <a href="#" class="btn btn-ghost btn-sm">Contracts</a>
+            <a href="#" class="btn btn-ghost btn-sm">Analytics</a>
+
+        {% elseif is_granted('ROLE_STAFF') %}
+
+            <a href="#" class="btn btn-ghost btn-sm">Stock</a>
+            <a href="{{ path('app_task') }}" class="btn btn-ghost btn-sm">Tasks</a>
+
+        {% elseif is_granted('ROLE_SUPPLIER') %}
+
+            <a href="#" class="btn btn-ghost btn-sm">Contracts</a>
+            <a href="#" class="btn btn-ghost btn-sm">Products</a>
+        {% endif %}
+    </div>
+
+    <div class="flex-none">
+        <div class="dropdown dropdown-end">
+            <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img alt="User Avatar" src="https://ui-avatars.com/api/?name={{ app.user.userIdentifier }}&background=random" />
+                </div>
+            </div>
+            <ul tabindex="-1" class="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
+                <li>
+                    <a class="justify-between" href="#">
+                        Profile
+                    </a>
+                </li>
+                <li><a href="{{ path('app_logout') }}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
