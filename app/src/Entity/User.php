@@ -4,7 +4,6 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Dom\Entity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -43,7 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $name = null;
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
-    private ?SupplierProfile $user = null;
+    private ?SupplierProfile $supplierProfile = null;
 
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'manager')]
     private Collection $createdTasks;
@@ -156,18 +155,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUser(): ?SupplierProfile
+    public function getSupplierProfile(): ?SupplierProfile
     {
-        return $this->user;
+        return $this->supplierProfile;
     }
 
-    public function setUser(SupplierProfile $user): static
+    public function setSupplierProfile(SupplierProfile $supplierProfile): static
     {
-        if ($user->getUser() !== $this) {
-            $user->setUser($this);
+        if ($supplierProfile->getUser() !== $this) {
+            $supplierProfile->setUser($this);
         }
 
-        $this->user = $user;
+        $this->supplierProfile = $supplierProfile;
 
         return $this;
     }
