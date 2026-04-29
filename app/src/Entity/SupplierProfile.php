@@ -22,7 +22,7 @@ class SupplierProfile
     #[ORM\Column(length: 255)]
     private ?string $address = null;
 
-    #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'supplierProfile', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 

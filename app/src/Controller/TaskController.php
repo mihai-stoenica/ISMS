@@ -24,7 +24,6 @@ final class TaskController extends AbstractController
         TaskRepository $taskRepository,
         Request $request,
         TaskService $taskService,
-        EntityManagerInterface $entityManager,
     ): Response
     {
         $status = $request->query->get('status');
