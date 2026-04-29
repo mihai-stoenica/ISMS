@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Dom\Entity;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints\NotBlank;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'This email already exists.', errorPath: 'email')]
@@ -42,6 +44,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'])]
     private ?SupplierProfile $user = null;
+
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'manager')]
+    private Collection $createdTasks;
+
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'employee')]
+    private Collection $assignedTasks;
+
+    public function __construct()
+    {
+        $this->createdTasks = new ArrayCollection();
+        $this->assignedTasks = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -149,7 +163,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setUser(SupplierProfile $user): static
     {
-        // set the owning side of the relation if necessary
         if ($user->getUser() !== $this) {
             $user->setUser($this);
         }
@@ -158,4 +171,63 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getCreatedTasks(): Collection
+    {
+        return $this->createdTasks;
+    }
+
+    public function addCreatedTask(Task $task): static
+    {
+        if (!$this->createdTasks->contains($task)) {
+            $this->createdTasks->add($task);
+            $task->setManager($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCreatedTask(Task $task): static
+    {
+        if ($this->createdTasks->removeElement($task)) {
+            if ($task->getManager() === $this) {
+                $task->setManager(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getAssignedTasks(): Collection
+    {
+        return $this->assignedTasks;
+    }
+
+    public function addAssignedTask(Task $task): static
+    {
+        if (!$this->assignedTasks->contains($task)) {
+            $this->assignedTasks->add($task);
+            $task->setEmployee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAssignedTask(Task $task): static
+    {
+        if ($this->assignedTasks->removeElement($task)) {
+            if ($task->getEmployee() === $this) {
+                $task->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
+
 }

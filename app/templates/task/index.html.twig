@@ -1,0 +1,166 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block body %}
+    <div class="flex h-screen bg-base-100">
+        <aside class="w-64 border-r border-base-300 p-4 space-y-8">
+            <form method="GET">
+                <div>
+                    <div class="flex justify-between mb-4">
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Assigned</span>
+                            <input type="radio"
+                                   name="status"
+                                   value="assigned"
+                                   class="radio radio-primary"
+                                {{ app.request.query.get('status') == 'assigned' ? 'checked' : '' }} />
+                        </label>
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Pending</span>
+                            <input type="radio"
+                                   name="status"
+                                   value="pending"
+                                   class="radio radio-secondary"
+                                {{ app.request.query.get('status') == 'pending' ? 'checked' : '' }} />
+                        </label>
+                        <label class="label cursor-pointer flex-col items-start gap-2">
+                            <span class="label-text font-bold">Completed</span>
+                            <input type="radio"
+                                   name="status"
+                                   value="completed"
+                                   class="radio radio-success"
+                                {{ app.request.query.get('status') == 'completed' ? 'checked' : '' }} />
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t pt-4">
+                    <label class="label font-bold">Search</label>
+                    <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
+                </div>
+
+                {% if not is_granted('ROLE_MANAGER') %}
+                <div class="border-t pt-4 mt-4">
+                    <label class="label cursor-pointer flex-col items-start gap-2">
+                        <span class="label-text font-bold">Most urgent</span>
+                        <input type="radio"
+                               name="order"
+                               value="urgent"
+                               class="radio radio-success"
+                            {{ app.request.query.get('order') == 'urgent' ? 'checked' : '' }} />
+                    </label>
+                </div>
+                {% endif %}
+
+                <button class="btn btn-primary w-full mt-4">Apply Filters</button>
+                <a href="{{ path('app_task') }}" class="btn btn-error w-full mt-4">Reset All</a>
+            </form>
+
+            {% if is_granted('ROLE_MANAGER') %}
+                <hr/>
+                <button class="btn btn-success w-full" onclick="create_task_modal.showModal()">Create Task</button>
+            {% endif %}
+
+        </aside>
+
+        <main class="flex-1 p-6 flex justify-center">
+            <div class="w-full max-w-5xl">
+                <div class="overflow-x-auto border rounded-box border-base-300">
+                    <table class="table table-zebra w-full">
+                        <thead class="bg-base-200">
+                        <tr>
+                            {% if is_granted('ROLE_MANAGER') %}
+                            <th class="text-lg text-center">Employee</th>
+                            {% endif %}
+                            <th class="text-lg text-center">Manager</th>
+                            <th class="text-lg text-center">Product</th>
+                            <th class="text-lg text-center">Created at</th>
+                            <th class="text-lg text-center">Completed at</th>
+                            <th class="text-lg text-center">Source</th>
+                            <th class="text-lg text-center">Destination</th>
+                            <th class="text-lg text-center">Status</th>
+                            {% if not is_granted('ROLE_MANAGER') %}
+                            <th></th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for task in tasks %}
+                            <tr>
+                                {% if is_granted('ROLE_MANAGER') %}
+                                <td class="text-center">{{ task.employee.name }}</td>
+                                {% endif %}
+                                <td class="text-center">{{ task.manager.name }}</td>
+                                <td class="text-center">{{ task.product.name }}</td>
+                                <td class="text-center">{{ task.createdAt|date('d-m-Y H:i') }}</td>
+                                <td class="text-center">{{ task.completedAt ? task.completedAt|date('d-m-Y H:i') : '-' }}</td>
+                                <td class="text-center">{{ task.source.value }}</td>
+                                <td class="text-center">{{ task.destination.value }}</td>
+                                <td class="text-center">
+                                    {% set status_class = {
+                                        'pending': 'bg-warning',
+                                        'assigned': 'bg-error',
+                                        'completed': 'bg-success'
+                                    }[task.status.value] | default('bg-secondary') %}
+                                    <span class="badge {{ status_class }} text-black " >
+                                        {{ task.status.value }}
+                                    </span>
+                                </td>
+                                {% if not is_granted('ROLE_MANAGER') %}
+                                <td>
+                                    {% if task.status.value == 'assigned' %}
+                                    <form action="{{ path('app_task_accept', {'id': task.id}) }}" method="POST">
+                                        <button class="btn btn-sm btn-success w-20">Accept</button>
+                                    </form>
+                                    {% elseif task.status.value == 'pending'%}
+                                        <form action="{{ path('app_task_complete', {'id': task.id}) }}" method="POST">
+                                            <button class="btn btn-sm btn-success w-20">Done</button>
+                                        </form>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-10">No tasks found matching filters.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    {% if is_granted('ROLE_MANAGER') and form is defined %}
+        <dialog id="create_task_modal" class="modal">
+            <div class="modal-box overflow-visible">
+                <h3 class="font-bold text-lg mb-6">Create New Task</h3>
+
+                {{ form_start(form) }}
+
+                <div class="space-y-4">
+                    {{ form_row(form.employee) }}
+                    {{ form_row(form.product) }}
+                    {{ form_row(form.destination) }}
+                </div>
+
+                <div class="modal-action mt-8">
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+
+                    <button type="button" class="btn" onclick="create_task_modal.close()">Cancel</button>
+                </div>
+
+                <div class="hidden">
+                    {{ form_rest(form) }}
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+
+        </dialog>
+    {% endif %}
+{% endblock %}

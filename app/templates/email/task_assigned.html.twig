@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
+        .details { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        .btn { display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Hello {{ task.employee.name }},</h2>
+
+    <p>You have been assigned a new stock movement task by <strong>{{ task.manager.name }}</strong>.</p>
+
+    <div class="details">
+        <p><strong>Product:</strong> {{ task.product.name }}</p>
+        <p><strong>Move From:</strong> {{ task.source.value }}</p>
+        <p><strong>Deliver To:</strong> {{ task.destination.value }}</p>
+        <p><strong>Assigned At:</strong> {{ task.createdAt|date('F j, Y, g:i a') }}</p>
+    </div>
+
+    <p>Please log in to the system to mark this task as complete once you have finished the movement.</p>
+
+    <a href="{{ url('app_task') }}" class="btn">View My Tasks</a>
+</div>
+</body>
+</html>
