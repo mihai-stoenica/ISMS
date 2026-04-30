@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\ProfileService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,21 +27,15 @@ final class ProfileController extends AbstractController
     public function editProfile(
         Request $request,
         UserInterface $user,
-        EntityManagerInterface $entityManager
+        ProfileService $profileService
     ): Response {
+
         /** @var User $user */
 
-        $user->setName($request->request->get('name'));
-        $user->setEmail($request->request->get('email'));
-
-        $profile = $user->getSupplierProfile();
-
-        if (in_array('ROLE_SUPPLIER', $user->getRoles()) && $profile !== null) {
-            $profile->setPhoneNumber($request->request->get('phone_number'));
-            $profile->setAddress($request->request->get('address'));
+        if($message = $profileService->editProfile($user, $request)){
+            $this->addFlash('error',$message);
+            return $this->redirectToRoute('app_profile');
         }
-
-        $entityManager->flush();
 
         return $this->redirectToRoute('app_profile');
     }
