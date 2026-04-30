@@ -19,32 +19,32 @@
         {% endif %}
     </head>
 
-    <body>
-    <div class="min-h-screen flex flex-col">
+    <body class="overflow-x-hidden h-screen">
+        <div class="min-h-screen flex flex-col">
 
-        <header class="sticky top-0 z-40 w-full">
-            {% block navbar %}
-                {% if is_granted('ROLE_USER') %}
-                    {{ include('layout/navbar.html.twig') }}
-                {% endif %}
-            {% endblock %}
-        </header>
+            <header class="sticky top-0 z-40 w-full">
+                {% block navbar %}
+                    {% if is_granted('ROLE_USER') %}
+                        {{ include('layout/navbar.html.twig') }}
+                    {% endif %}
+                {% endblock %}
+            </header>
 
-        <main class="flex-grow">
-            {% block body %}{% endblock %}
-        </main>
-    </div>
+            <main class="flex-grow">
+                {% block body %}{% endblock %}
+            </main>
+        </div>
 
-    <div class="toast toast-bottom toast-end z-50">
-        {% for label, messages in app.flashes %}
-            {% for message in messages %}
-                <div class="alert alert-error shadow-lg">
-                    <span>{{ message }}</span>
-                </div>
+        <div class="toast toast-bottom toast-end z-50">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-error shadow-lg">
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </div>
+        </div>
 
-    {% block modals %}{% endblock %}
+        {% block modals %}{% endblock %}
     </body>
 </html>

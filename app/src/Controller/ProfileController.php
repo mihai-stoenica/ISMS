@@ -13,7 +13,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class ProfileController extends AbstractController
 {
     #[Route('/profile', name: 'app_profile', methods: ['GET'])]
-    public function showProfile(UserInterface $user): Response
+    public function showProfile(
+        UserInterface $user
+    ): Response
     {
         return $this->render('profile/index.html.twig', [
             'user_data' => $user
