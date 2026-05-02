@@ -19,11 +19,8 @@ class Product
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\Column]
-    private ?float $sellingPrice = null;
-
-    #[ORM\Column]
-    private ?float $purchasePrice = null;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    private ?string $sellingPrice = null;
 
     #[ORM\Column]
     private ?int $currentStock = null;
@@ -40,12 +37,19 @@ class Product
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'product')]
     private Collection $tasks;
 
-    #[ORM\Column(enumType: Location::class)]
+    #[ORM\Column(enumType: Location::class, nullable: true)]
     private ?Location $location = null;
+
+    /**
+     * @var Collection<int, SupplierProduct>
+     */
+    #[ORM\OneToMany(targetEntity: SupplierProduct::class, mappedBy: 'product')]
+    private Collection $supplierProducts;
 
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
+        $this->supplierProducts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -73,18 +77,6 @@ class Product
     public function setSellingPrice(float $sellingPrice): static
     {
         $this->sellingPrice = $sellingPrice;
-
-        return $this;
-    }
-
-    public function getPurchasePrice(): ?float
-    {
-        return $this->purchasePrice;
-    }
-
-    public function setPurchasePrice(float $purchasePrice): static
-    {
-        $this->purchasePrice = $purchasePrice;
 
         return $this;
     }
@@ -146,7 +138,6 @@ class Product
     public function removeTask(Task $task): static
     {
         if ($this->tasks->removeElement($task)) {
-            // set the owning side to null (unless already changed)
             if ($task->getProduct() === $this) {
                 $task->setProduct(null);
             }
@@ -163,6 +154,36 @@ class Product
     public function setLocation(Location $location): static
     {
         $this->location = $location;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, SupplierProduct>
+     */
+    public function getSupplierProducts(): Collection
+    {
+        return $this->supplierProducts;
+    }
+
+    public function addSupplierProduct(SupplierProduct $supplierProduct): static
+    {
+        if (!$this->supplierProducts->contains($supplierProduct)) {
+            $this->supplierProducts->add($supplierProduct);
+            $supplierProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSupplierProduct(SupplierProduct $supplierProduct): static
+    {
+        if ($this->supplierProducts->removeElement($supplierProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($supplierProduct->getProduct() === $this) {
+                $supplierProduct->setProduct(null);
+            }
+        }
 
         return $this;
     }

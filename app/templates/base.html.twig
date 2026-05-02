@@ -37,8 +37,16 @@
 
         <div class="toast toast-bottom toast-end z-50">
             {% for label, messages in app.flashes %}
+            {% set alertClass = {
+                'success': 'alert-success',
+                'error':   'alert-error',
+                'danger':  'alert-error',
+                'warning': 'alert-warning',
+                'info':    'alert-info'
+            }[label] ?? 'alert-info' %}
+
                 {% for message in messages %}
-                    <div class="alert alert-error shadow-lg">
+                    <div class="alert {{ alertClass }} shadow-lg">
                         <span>{{ message }}</span>
                     </div>
                 {% endfor %}

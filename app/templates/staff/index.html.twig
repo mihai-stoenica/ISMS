@@ -13,7 +13,7 @@
                             <input type="radio"
                                    name="type"
                                    value="staff"
-                                   class="radio radio-primary"
+                                   class="radio"
                                 {{ app.request.query.get('type') == 'staff' ? 'checked' : '' }} />
                         </label>
                         <label class="label cursor-pointer flex-col items-start gap-2">
@@ -21,7 +21,7 @@
                             <input type="radio"
                                    name="type"
                                    value="supplier"
-                                   class="radio radio-secondary"
+                                   class="radio"
                                 {{ app.request.query.get('type') == 'supplier' ? 'checked' : '' }} />
                         </label>
                         <label class="label cursor-pointer flex-col items-start gap-2">
@@ -29,7 +29,7 @@
                             <input type="radio"
                                    name="type"
                                    value="manager"
-                                   class="radio radio-success"
+                                   class="radio"
                                 {{ app.request.query.get('type') == 'manager' ? 'checked' : '' }} />
                         </label>
                     </div>
@@ -61,7 +61,7 @@
                     <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
                 </div>
 
-                <button class="btn btn-primary w-full mt-4">Apply Filters</button>
+                <button class="btn btn-success w-full mt-4">Apply Filters</button>
                 <a href="{{ path('app_staff') }}" class="btn btn-error w-full mt-4">Reset All</a>
             </form>
         </aside>

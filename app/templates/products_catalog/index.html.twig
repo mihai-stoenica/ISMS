@@ -1,0 +1,113 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalog{% endblock %}
+
+{% block body %}
+    <div class="flex h-full bg-base-100">
+        <aside class="w-64 border-r border-base-300 p-4 space-y-8">
+            <form method="GET">
+                <div>
+                    <label class="label font-bold">Search</label>
+                    <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
+                </div>
+
+                <button class="btn btn-success w-full mt-4">Apply Filters</button>
+                <a href="{{ path('app_products_catalog') }}" class="btn btn-error w-full mt-4">Reset All</a>
+            </form>
+
+            <hr>
+
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold">Add Product</h2>
+
+                {{ form_start(form, {'attr': {'class': 'space-y-3'}}) }}
+                <div>
+                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.name) }}</label>
+                    {{ form_widget(form.name) }}
+                    {{ form_errors(form.name) }}
+                </div>
+
+                <div>
+                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.sellingPrice) }}</label>
+                    {{ form_widget(form.sellingPrice) }}
+                    {{ form_errors(form.sellingPrice) }}
+                </div>
+
+                <div>
+                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.lowStockThreshold) }}</label>
+                    {{ form_widget(form.lowStockThreshold) }}
+                    {{ form_errors(form.lowStockThreshold) }}
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center">
+                        <label class="label text-xs uppercase opacity-70">{{ form_label(form.category) }}</label>
+                        <button type="button" onclick="category_modal.showModal()" class="btn btn-ghost btn-xs text-info">+ New</button>
+                    </div>
+                    {{ form_widget(form.category) }}
+                    {{ form_errors(form.category) }}
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-sm w-full">Create Product</button>
+                {{ form_end(form) }}
+
+            </div>
+
+        </aside>
+
+        <main class="flex-1 p-6 flex justify-center">
+            <div class="w-full max-w-5xl">
+                <div class="overflow-x-auto border rounded-box border-base-300">
+                    <table class="table table-zebra w-full">
+                        <thead class="bg-base-200">
+                        <tr>
+                            <th class="text-lg text-center">Name</th>
+                            {% if is_granted('ROLE_MANAGER') %}
+                                <th class="text-lg text-center">Stock</th>
+                                <th class="text-lg text-center">Sell Price</th>
+                                <th class="text-lg text-center">Location</th>
+                                <th></th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for product in products %}
+                            <tr>
+                                <td class="text-center">{{ product.name }}</td>
+                                {% if is_granted('ROLE_MANAGER') %}
+                                    <td class="text-center">{{ product.currentStock }}</td>
+                                    <td class="text-center">${{ product.sellingPrice }}</td>
+                                    <td class="text-center">{{ product.location ? product.location.value : 'No Location' }}  </td>
+                                    <td>
+                                        <a href="{{ path('app_task') }}" class="btn btn-sm btn-success w-30">Create Task</a>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-10">No products found matching filters.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
+
+{% block modals %}
+    <dialog id="category_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Create New Category</h3>
+            <form action="{{ path('app_category_create') }}"  method="POST">
+                <input type="text" name="category_name" placeholder="Category name..." class="input input-bordered w-full my-4" />
+                <div class="modal-action">
+                    <button type="button" onclick="category_modal.close()" class="btn">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+{% endblock %}
+
