@@ -187,4 +187,14 @@ class Product
 
         return $this;
     }
+
+    public function isSoldBy(User $user): bool
+    {
+        foreach ($this->supplierProducts as $sp) {
+            if ($sp->getSupplier()->getUser() === $user) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

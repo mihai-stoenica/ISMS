@@ -15,43 +15,43 @@
                 <a href="{{ path('app_products_catalog') }}" class="btn btn-error w-full mt-4">Reset All</a>
             </form>
 
-            <hr>
+            {% if is_granted('ROLE_MANAGER') %}
+                <hr>
+                <div class="space-y-4">
+                    <h2 class="text-lg font-bold">Add Product</h2>
 
-            <div class="space-y-4">
-                <h2 class="text-lg font-bold">Add Product</h2>
-
-                {{ form_start(form, {'attr': {'class': 'space-y-3'}}) }}
-                <div>
-                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.name) }}</label>
-                    {{ form_widget(form.name) }}
-                    {{ form_errors(form.name) }}
-                </div>
-
-                <div>
-                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.sellingPrice) }}</label>
-                    {{ form_widget(form.sellingPrice) }}
-                    {{ form_errors(form.sellingPrice) }}
-                </div>
-
-                <div>
-                    <label class="label text-xs uppercase opacity-70">{{ form_label(form.lowStockThreshold) }}</label>
-                    {{ form_widget(form.lowStockThreshold) }}
-                    {{ form_errors(form.lowStockThreshold) }}
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center">
-                        <label class="label text-xs uppercase opacity-70">{{ form_label(form.category) }}</label>
-                        <button type="button" onclick="category_modal.showModal()" class="btn btn-ghost btn-xs text-info">+ New</button>
+                    {{ form_start(form, {'attr': {'class': 'space-y-3'}}) }}
+                    <div>
+                        <label class="label text-xs uppercase opacity-70">{{ form_label(form.name) }}</label>
+                        {{ form_widget(form.name) }}
+                        {{ form_errors(form.name) }}
                     </div>
-                    {{ form_widget(form.category) }}
-                    {{ form_errors(form.category) }}
+
+                    <div>
+                        <label class="label text-xs uppercase opacity-70">{{ form_label(form.sellingPrice) }}</label>
+                        {{ form_widget(form.sellingPrice) }}
+                        {{ form_errors(form.sellingPrice) }}
+                    </div>
+
+                    <div>
+                        <label class="label text-xs uppercase opacity-70">{{ form_label(form.lowStockThreshold) }}</label>
+                        {{ form_widget(form.lowStockThreshold) }}
+                        {{ form_errors(form.lowStockThreshold) }}
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center">
+                            <label class="label text-xs uppercase opacity-70">{{ form_label(form.category) }}</label>
+                            <button type="button" onclick="category_modal.showModal()" class="btn btn-ghost btn-xs text-info">+ New</button>
+                        </div>
+                        {{ form_widget(form.category) }}
+                        {{ form_errors(form.category) }}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-sm w-full">Create Product</button>
+                    {{ form_end(form) }}
                 </div>
-
-                <button type="submit" class="btn btn-primary btn-sm w-full">Create Product</button>
-                {{ form_end(form) }}
-
-            </div>
+            {% endif %}
 
         </aside>
 
@@ -62,11 +62,16 @@
                         <thead class="bg-base-200">
                         <tr>
                             <th class="text-lg text-center">Name</th>
+                            <th class="text-lg text-center">Category</th>
                             {% if is_granted('ROLE_MANAGER') %}
                                 <th class="text-lg text-center">Stock</th>
                                 <th class="text-lg text-center">Sell Price</th>
                                 <th class="text-lg text-center">Location</th>
                                 <th></th>
+                            {% endif %}
+                            {% if is_granted('ROLE_SUPPLIER') %}
+                                <th class="text-lg text-center">Sell</th>
+                                <th class="text-lg text-center">Buy</th>
                             {% endif %}
                         </tr>
                         </thead>
@@ -74,12 +79,54 @@
                         {% for product in products %}
                             <tr>
                                 <td class="text-center">{{ product.name }}</td>
+                                <td class="text-center">{{ product.category.name }}</td>
                                 {% if is_granted('ROLE_MANAGER') %}
                                     <td class="text-center">{{ product.currentStock }}</td>
                                     <td class="text-center">${{ product.sellingPrice }}</td>
                                     <td class="text-center">{{ product.location ? product.location.value : 'No Location' }}  </td>
                                     <td>
-                                        <a href="{{ path('app_task') }}" class="btn btn-sm btn-success w-30">Create Task</a>
+                                        <a href="{{ path('app_task', { 'productId': product.id }) }}" class="btn btn-sm btn-warning w-24">Create Task</a>
+                                        <a href="{{ path('app_products_catalog_buy', { 'id': product.id }) }}" class="btn btn-sm btn-success w-24">Buy</a>
+                                    </td>
+                                {% endif %}
+                                {% if is_granted('ROLE_SUPPLIER') %}
+                                    <td class="text-center">
+                                    {% if not product.isSoldBy(app.user) %}
+                                        <form action="{{ path('app_products_catalog_sell', {'id': product.id}) }}" method="POST" class="flex justify-center">
+                                            <div class="join">
+                                                <input
+                                                    name="price"
+                                                    type="number"
+                                                    step="0.01"
+                                                    placeholder="Price"
+                                                    class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                                                />
+                                                <button type="submit" class="btn btn-sm btn-success join-item">
+                                                    Sell
+                                                </button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <a href="{{ path('app_products_catalog_unsell', {'id':   product.id}) }}" class="btn btn-sm btn-error join-item">
+                                            Stop selling
+                                        </a>
+                                    {% endif %}
+                                    </td>
+                                    <td>
+                                        <form class="flex justify-center">
+                                            <div class="join">
+                                                <input
+                                                    name="quantity"
+                                                    type="number"
+                                                    step="1"
+                                                    placeholder="Quantity"
+                                                    class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                                                />
+                                                <button type="submit" class="btn btn-sm btn-success join-item">
+                                                    Buy
+                                                </button>
+                                            </div>
+                                        </form>
                                     </td>
                                 {% endif %}
                             </tr>

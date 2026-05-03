@@ -132,6 +132,17 @@
             </div>
         </main>
     </div>
+
+    {% if app.request.query.get('productId') %}
+        <script>
+            document.addEventListener("turbo:load", () => {
+                const modal = document.getElementById('create_task_modal');
+                if (modal) {
+                    modal.showModal();
+                }
+            });
+        </script>
+    {% endif %}
 {% endblock %}
 
 {% block modals %}
@@ -164,3 +175,5 @@
         </dialog>
     {% endif %}
 {% endblock %}
+
+

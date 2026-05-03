@@ -6,6 +6,7 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\TaskStatus;
 use App\Form\CreateTaskType;
+use App\Repository\ProductRepository;
 use App\Repository\TaskRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +25,7 @@ final class TaskController extends AbstractController
         TaskRepository $taskRepository,
         Request $request,
         TaskService $taskService,
+        ProductRepository $productRepository,
     ): Response
     {
         $status = $request->query->get('status');
@@ -34,10 +36,15 @@ final class TaskController extends AbstractController
         $user = $this->getUser();
 
         $form = null;
+        $selectedProductId = $request->query->get('productId');
 
         if($this->isGranted('ROLE_MANAGER')) {
 
             $newTask = new Task();
+            if($selectedProductId) {
+                $product = $productRepository->find($selectedProductId);
+                $newTask->setProduct($product);
+            }
             $form = $this->createForm(CreateTaskType::class, $newTask);
             $form->handleRequest($request);
 

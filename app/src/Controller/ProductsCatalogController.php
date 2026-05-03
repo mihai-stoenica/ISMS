@@ -3,8 +3,12 @@
 namespace App\Controller;
 
 use App\Entity\Product;
+use App\Entity\SupplierProduct;
+use App\Entity\User;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
+use App\Repository\SupplierProductRepository;
+use App\Service\ProductsCatalogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
@@ -48,6 +52,56 @@ final class ProductsCatalogController extends AbstractController
         return $this->render('products_catalog/index.html.twig', [
            'products' => $products,
             ...($form ? ['form' => $form->createView()] : []),
+        ]);
+    }
+
+    #[Route('/products/catalog/sell/{id}', name: 'app_products_catalog_sell')]
+    #[IsGranted('ROLE_SUPPLIER')]
+    public function supplierSell(
+        Product $product,
+        Request $request,
+        ProductsCatalogService $productsCatalogService,
+    ) : Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        $price = $request->request->get('price');
+
+        if($message = $productsCatalogService->mapSupplierProduct($user, $product, $price)) {
+            $this->addFlash('error', $message);
+        }
+        return $this->redirectToRoute('app_products_catalog');
+    }
+
+    #[Route('/products/catalog/unsell/{id}', name: 'app_products_catalog_unsell')]
+    #[IsGranted('ROLE_SUPPLIER')]
+    public function supplierUnsell(
+        Product $product,
+        ProductsCatalogService $productsCatalogService,
+    ) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if($message = $productsCatalogService->unsellProduct($user, $product)) {
+            $this->addFlash('error', $message);
+        }
+
+        return $this->redirectToRoute('app_products_catalog');
+    }
+
+    #[Route('/products/catalog/buy/{id}', name: 'app_products_catalog_buy')]
+    #[IsGranted('ROLE_MANAGER')]
+    public function managerBuy(
+        Product $product,
+        SupplierProductRepository $supplierProductRepository,
+    ) : Response
+    {
+        $sellers = $supplierProductRepository->findSellersForProduct($product);
+
+        return $this->render('products_catalog/buy.html.twig', [
+            'product' => $product,
+            'sellers' => $sellers,
         ]);
     }
 

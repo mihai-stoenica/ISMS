@@ -13,6 +13,7 @@
             <a href="{{ path('app_task') }}" class="btn btn-ghost btn-sm">Tasks</a>
             <a href="#" class="btn btn-ghost btn-sm">Contracts</a>
             <a href="#" class="btn btn-ghost btn-sm">Analytics</a>
+            <a href="{{ path('app_products_catalog') }}" class="btn btn-ghost btn-sm">Catalog</a>
 
         {% elseif is_granted('ROLE_STAFF') %}
 
@@ -22,7 +23,7 @@
         {% elseif is_granted('ROLE_SUPPLIER') %}
 
             <a href="#" class="btn btn-ghost btn-sm">Contracts</a>
-            <a href="#" class="btn btn-ghost btn-sm">Products</a>
+            <a href="{{ path('app_products_catalog') }}" class="btn btn-ghost btn-sm">Catalog</a>
         {% endif %}
     </div>
 

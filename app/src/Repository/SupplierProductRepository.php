@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Product;
 use App\Entity\SupplierProduct;
+use App\Entity\SupplierProfile;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,18 @@ class SupplierProductRepository extends ServiceEntityRepository
         parent::__construct($registry, SupplierProduct::class);
     }
 
-    //    /**
-    //     * @return SupplierProduct[] Returns an array of SupplierProduct objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findSellersForProduct(Product $product) : array
+    {
+        $qb = $this->createQueryBuilder('sp');
 
-    //    public function findOneBySomeField($value): ?SupplierProduct
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $qb->innerJoin('sp.supplier', 'profile')
+            ->addSelect('profile')
+            ->innerJoin('profile.user', 'user')
+            ->addSelect('user')
+            ->where('sp.product = :product')
+            ->setParameter('product', $product)
+            ->orderBy('sp.purchasePrice', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
 }
