@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Product;
-use App\Entity\SupplierProduct;
 use App\Entity\User;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
@@ -79,7 +78,8 @@ final class ProductsCatalogController extends AbstractController
     public function supplierUnsell(
         Product $product,
         ProductsCatalogService $productsCatalogService,
-    ) {
+    ) : Response
+    {
         /** @var User $user */
         $user = $this->getUser();
 
