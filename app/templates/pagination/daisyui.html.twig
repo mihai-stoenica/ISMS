@@ -1,0 +1,21 @@
+<div class="join">
+    {% if previous is defined %}
+        <a class="join-item btn btn-sm" href="{{ path(route, query|merge({(pageParameterName): previous})) }}">&laquo;</a>
+    {% else %}
+        <button class="join-item btn btn-sm btn-disabled">&laquo;</button>
+    {% endif %}
+
+    {% for page in pagesInRange %}
+        {% if page != current %}
+            <a class="join-item btn btn-sm" href="{{ path(route, query|merge({(pageParameterName): page})) }}">{{ page }}</a>
+        {% else %}
+            <button class="join-item btn btn-sm btn-active btn-primary">{{ page }}</button>
+        {% endif %}
+    {% endfor %}
+
+    {% if next is defined %}
+        <a class="join-item btn btn-sm" href="{{ path(route, query|merge({(pageParameterName): next})) }}">&raquo;</a>
+    {% else %}
+        <button class="join-item btn btn-sm btn-disabled">&raquo;</button>
+    {% endif %}
+</div>

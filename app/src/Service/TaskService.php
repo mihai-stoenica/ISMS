@@ -85,6 +85,10 @@ class TaskService
             return "This location is already in use.";
         }
 
+        if($newTask->getProduct()->getCurrentStock() < 1 || $newTask->getProduct()->getLocation() == null) {
+            return "This product is currently out of stock.";
+        }
+
         return null;
     }
 

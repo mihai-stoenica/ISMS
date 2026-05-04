@@ -6,9 +6,11 @@ use App\Entity\Task;
 use App\Entity\User;
 use App\Enum\TaskStatus;
 use App\Form\CreateTaskType;
+use App\Repository\ProductRepository;
 use App\Repository\TaskRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,6 +26,8 @@ final class TaskController extends AbstractController
         TaskRepository $taskRepository,
         Request $request,
         TaskService $taskService,
+        ProductRepository $productRepository,
+        PaginatorInterface $paginator,
     ): Response
     {
         $status = $request->query->get('status');
@@ -34,10 +38,15 @@ final class TaskController extends AbstractController
         $user = $this->getUser();
 
         $form = null;
+        $selectedProductId = $request->query->get('productId');
 
         if($this->isGranted('ROLE_MANAGER')) {
 
             $newTask = new Task();
+            if($selectedProductId) {
+                $product = $productRepository->find($selectedProductId);
+                $newTask->setProduct($product);
+            }
             $form = $this->createForm(CreateTaskType::class, $newTask);
             $form->handleRequest($request);
 
@@ -56,13 +65,20 @@ final class TaskController extends AbstractController
                 return $this->redirectToRoute('app_task');
             }
 
-            $tasks = $taskRepository->findBySearchParams($status, $search);
+            $query = $taskRepository->findBySearchParams($status, $search);
+
         } else {
-            $tasks = $taskRepository->findBySearchParams($status, $search, $order, $user);
+            $query = $taskRepository->findBySearchParams($status, $search, $order, $user);
         }
 
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('task/index.html.twig', [
-            'tasks' => $tasks,
+            'tasks' => $pagination,
             ...($form ? ['form' => $form->createView()] : []),
         ]);
     }

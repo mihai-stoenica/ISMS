@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Buy {{ product.name }}{% endblock %}
+
+{% block body %}
+    <div class="overflow-x-auto">
+        <table class="table table-zebra">
+            <thead>
+            <tr>
+                <th>Supplier Name</th>
+                <th>Email</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for sp in sellers %}
+                <tr>
+                    <td>
+                        <div class="font-bold">{{ sp.supplier.user.name }}</div>
+                    </td>
+                    <td>{{ sp.supplier.user.email }}</td>
+                    <td class="text-success font-mono font-bold">
+                        ${{ sp.purchasePrice|number_format(2) }}
+                    </td>
+                    <td>
+                        <div class="join">
+                            <input
+                                name="quantity"
+                                type="number"
+                                step="1"
+                                placeholder="Quantity"
+                                class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                            />
+                            <button type="submit" class="btn btn-sm btn-success join-item">
+                                Buy
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center italic">No suppliers found for this product.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
