@@ -19,17 +19,16 @@
         {% endif %}
     </head>
 
-    <body class="overflow-x-hidden h-screen">
-        <div class="min-h-screen flex flex-col">
-
-            <header class="sticky top-0 z-40 w-full">
+    <body class="overflow-hidden h-screen">
+        <div class="h-screen flex flex-col">
+            <header class="flex-none">
                 {% block navbar %}
                     {% if is_granted('ROLE_USER') %}
                         {{ include('layout/navbar.html.twig') }}
                     {% endif %}
                 {% endblock %}
             </header>
-            <main class="flex-grow">
+            <main class="flex-grow overflow-hidden">
                 {% block body %}{% endblock %}
             </main>
         </div>

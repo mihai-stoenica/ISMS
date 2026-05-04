@@ -74,7 +74,7 @@ final class TaskController extends AbstractController
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            10
+            7
         );
 
         return $this->render('task/index.html.twig', [
