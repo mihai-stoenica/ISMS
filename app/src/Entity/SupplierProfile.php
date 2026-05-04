@@ -34,9 +34,16 @@ class SupplierProfile
     #[ORM\OneToMany(targetEntity: SupplierProduct::class, mappedBy: 'supplier')]
     private Collection $supplierProducts;
 
+    /**
+     * @var Collection<int, Order>
+     */
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'supplier', orphanRemoval: true)]
+    private Collection $orders;
+
     public function __construct()
     {
         $this->supplierProducts = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,6 +122,35 @@ class SupplierProfile
         if ($this->supplierProducts->removeElement($supplierProduct)) {
             if ($supplierProduct->getSupplier() === $this) {
                 $supplierProduct->setSupplier(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Order>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Order $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setSupplier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Order $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            if ($order->getSupplier() === $this) {
+                $order->setSupplier(null);
             }
         }
 

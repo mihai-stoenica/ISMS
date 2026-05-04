@@ -8,7 +8,8 @@
             <form method="GET">
                 <div>
                     <label class="label font-bold">Search</label>
-                    <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
+                    <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" value="{{ app.request.query.get('search') }}" />
+
                     <label class="label font-bold">Category</label>
                     <select name="categoryId" class="select select-bordered w-full">
                         <option value="">All Categories</option>
@@ -64,9 +65,9 @@
             {% endif %}
         </aside>
 
-        <main class="flex-1 p-6 flex justify-center">
+        <main class="flex-1 p-6 flex justify-center overflow-y-auto">
             <div class="w-full max-w-5xl">
-                <div class="overflow-x-auto border rounded-box border-base-300">
+                <div class="overflow-x-auto border rounded-box border-base-300 shadow-sm bg-base-100">
                     <table class="table table-zebra w-full">
                         <thead class="bg-base-200">
                         <tr>
@@ -87,51 +88,60 @@
                         <tbody>
                         {% for product in products %}
                             <tr>
-                                <td class="text-center">{{ product.name }}</td>
+                                <td class="text-center font-semibold">{{ product.name }}</td>
                                 <td class="text-center">{{ product.category.name }}</td>
+
                                 {% if is_granted('ROLE_MANAGER') %}
                                     <td class="text-center">{{ product.currentStock }}</td>
-                                    <td class="text-center">${{ product.sellingPrice }}</td>
-                                    <td class="text-center">{{ product.location ? product.location.value : 'No Location' }}  </td>
+                                    <td class="text-center font-mono">${{ product.sellingPrice }}</td>
+                                    <td class="text-center">{{ product.location ? product.location.value : 'No Location' }}</td>
                                     <td>
-                                        <a href="{{ path('app_task', { 'productId': product.id }) }}" class="btn btn-sm btn-warning w-24">Create Task</a>
-                                        <a href="{{ path('app_products_catalog_buy', { 'id': product.id }) }}" class="btn btn-sm btn-success w-24">Buy</a>
+                                        <div class="flex flex-col gap-1">
+                                            <a href="{{ path('app_task', { 'productId': product.id }) }}" class="btn btn-xs btn-warning w-24">Create Task</a>
+                                            <a href="{{ path('app_products_catalog_buy', { 'id': product.id }) }}" class="btn btn-xs btn-success w-24">Buy</a>
+                                        </div>
                                     </td>
                                 {% endif %}
+
                                 {% if is_granted('ROLE_SUPPLIER') %}
                                     <td class="text-center">
-                                    {% if not product.isSoldBy(app.user) %}
-                                        <form action="{{ path('app_products_catalog_sell', {'id': product.id}) }}" method="POST" class="flex justify-center">
-                                            <div class="join">
-                                                <input
-                                                    name="price"
-                                                    type="number"
-                                                    step="0.01"
-                                                    placeholder="Price"
-                                                    class="input input-bordered input-sm join-item w-24 focus:outline-primary"
-                                                />
-                                                <button type="submit" class="btn btn-sm btn-success join-item">
-                                                    Sell
-                                                </button>
-                                            </div>
-                                        </form>
-                                    {% else %}
-                                        <a href="{{ path('app_products_catalog_unsell', {'id':   product.id}) }}" class="btn btn-sm btn-error join-item">
-                                            Stop selling
-                                        </a>
-                                    {% endif %}
+                                        {% if not product.isSoldBy(app.user) %}
+                                            <form action="{{ path('app_products_catalog_sell', {'id': product.id}) }}" method="POST" class="flex justify-center">
+                                                <div class="join">
+                                                    <input
+                                                        name="price"
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="Price"
+                                                        class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                                                        required
+                                                    />
+                                                    <button type="submit" class="btn btn-sm btn-success join-item">
+                                                        Sell
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        {% else %}
+                                            <a href="{{ path('app_products_catalog_unsell', {'id': product.id}) }}" class="btn btn-sm btn-error">
+                                                Stop selling
+                                            </a>
+                                        {% endif %}
                                     </td>
+
                                     <td>
-                                        <form class="flex justify-center">
+                                        <form action="{{ path('cart_add', {'id': product.id}) }}" method="POST" class="flex justify-center">
                                             <div class="join">
                                                 <input
                                                     name="quantity"
                                                     type="number"
                                                     step="1"
-                                                    placeholder="Quantity"
-                                                    class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                                                    min="1"
+                                                    max="{{ product.currentStock }}"
+                                                    placeholder="Qty"
+                                                    class="input input-bordered input-sm join-item w-20 focus:outline-primary"
+                                                    required
                                                 />
-                                                <button type="submit" class="btn btn-sm btn-success join-item">
+                                                <button type="submit" class="btn btn-sm btn-info join-item">
                                                     Buy
                                                 </button>
                                             </div>
@@ -141,12 +151,13 @@
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center py-10">No products found matching filters.</td>
+                                <td colspan="10" class="text-center py-10">No products found matching filters.</td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-                    <div class="flex justify-center py-4">
+
+                    <div class="flex justify-center py-4 bg-base-100">
                         <div class="join">
                             {{ knp_pagination_render(products) }}
                         </div>
@@ -161,14 +172,16 @@
     <dialog id="category_modal" class="modal">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Create New Category</h3>
-            <form action="{{ path('app_category_create') }}"  method="POST">
-                <input type="text" name="category_name" placeholder="Category name..." class="input input-bordered w-full my-4" />
+            <form action="{{ path('app_category_create') }}" method="POST">
+                <input type="text" name="category_name" placeholder="Category name..." class="input input-bordered w-full my-4" required />
                 <div class="modal-action">
                     <button type="button" onclick="category_modal.close()" class="btn">Cancel</button>
                     <button type="submit" class="btn btn-success">Save Category</button>
                 </div>
             </form>
         </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
     </dialog>
 {% endblock %}
-

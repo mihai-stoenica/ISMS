@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Manage Orders{% endblock %}
+
+{% block body %}
+    <div class="p-8 h-full overflow-y-auto">
+        <h1 class="text-3xl font-bold mb-6">Pending Supplier Orders</h1>
+
+        {% if orders is empty %}
+            <div class="alert alert-info">
+                <span>No pending orders at the moment.</span>
+            </div>
+        {% else %}
+            <div class="space-y-4">
+                {% for order in orders %}
+                    <div class="collapse collapse-arrow bg-base-200 border border-base-300">
+                        <input type="checkbox" />
+                        <div class="collapse-title text-xl font-medium flex justify-between items-center pr-12">
+                            <span>Order #{{ order.id }} - <span class="text-primary">{{ order.supplier.user.name }}</span></span>
+                            <span class="font-mono text-success">${{ order.totalPrice|number_format(2) }}</span>
+                        </div>
+                        <div class="collapse-content bg-base-100">
+                            <table class="table w-full mt-4">
+                                <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Requested Quantity</th>
+                                    <th>Current Stock</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for item in order.productOrders %}
+                                    <tr>
+                                        <td>{{ item.product.name }}</td>
+                                        <td class="font-bold">{{ item.quantity }}</td>
+                                        <td>{{ item.product.currentStock }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+
+                            <div class="flex justify-end gap-3 mt-6 p-4">
+                                <form action="{{ path('app_order_approve', {'id': order.id}) }}" method="POST">
+                                    <button type="submit" class="btn btn-success">Approve & Deduct Stock</button>
+                                </form>
+
+                                <button class="btn btn-ghost text-error">Reject Order</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
