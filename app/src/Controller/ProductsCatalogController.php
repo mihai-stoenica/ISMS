@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Form\ProductType;
+use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use App\Repository\SupplierProductRepository;
 use App\Service\ProductsCatalogService;
@@ -26,11 +27,14 @@ final class ProductsCatalogController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         PaginatorInterface $paginator,
+        CategoryRepository $categoryRepository,
     ): Response
     {
         $search = $request->query->get('search');
+        $categoryId = $request->query->get('categoryId');
 
-        $query = $productRepository->findBySearch($search);
+        $query = $productRepository->findBySearch($search, $categoryId);
+        $categories = $categoryRepository->findAll();
 
         $pagination = $paginator->paginate(
             $query,
@@ -58,6 +62,7 @@ final class ProductsCatalogController extends AbstractController
 
         return $this->render('products_catalog/index.html.twig', [
            'products' => $pagination,
+            'categories' => $categories,
             ...($form ? ['form' => $form->createView()] : []),
         ]);
     }

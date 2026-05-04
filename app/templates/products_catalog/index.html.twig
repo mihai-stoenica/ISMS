@@ -9,6 +9,16 @@
                 <div>
                     <label class="label font-bold">Search</label>
                     <input type="text" name="search" placeholder="Search..." class="input input-bordered w-full" />
+                    <label class="label font-bold">Category</label>
+                    <select name="categoryId" class="select select-bordered w-full">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}"
+                                    {% if app.request.query.get('categoryId') == category.id %}selected{% endif %}>
+                                {{ category.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
                 </div>
 
                 <button class="btn btn-success w-full mt-4">Apply Filters</button>
