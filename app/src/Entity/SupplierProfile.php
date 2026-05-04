@@ -34,9 +34,16 @@ class SupplierProfile
     #[ORM\OneToMany(targetEntity: SupplierProduct::class, mappedBy: 'supplier')]
     private Collection $supplierProducts;
 
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'supplier')]
+    private Collection $contracts;
+
     public function __construct()
     {
         $this->supplierProducts = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -115,6 +122,36 @@ class SupplierProfile
         if ($this->supplierProducts->removeElement($supplierProduct)) {
             if ($supplierProduct->getSupplier() === $this) {
                 $supplierProduct->setSupplier(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setSupplier($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            // set the owning side to null (unless already changed)
+            if ($contract->getSupplier() === $this) {
+                $contract->setSupplier(null);
             }
         }
 

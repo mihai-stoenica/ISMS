@@ -24,18 +24,30 @@
                         ${{ sp.purchasePrice|number_format(2) }}
                     </td>
                     <td>
-                        <div class="join">
-                            <input
-                                name="quantity"
-                                type="number"
-                                step="1"
-                                placeholder="Quantity"
-                                class="input input-bordered input-sm join-item w-24 focus:outline-primary"
-                            />
-                            <button type="submit" class="btn btn-sm btn-success join-item">
-                                Buy
-                            </button>
-                        </div>
+
+
+                            <form action="{{ path("app_contract_buy",{"supplierId": sp.supplier.id, "productId":sp.product.id}) }}" method="POST">
+                                <div class="join">
+                                    <select name="delivery_ramp" class="select select-bordered select-sm join-item focus:outline-primary" required>
+                                        <option disabled selected value="">Select Ramp</option>
+                                        {% for ramp in ramps %}
+                                            <option value="{{ ramp.value }}">Ramp {{ ramp.value }}</option>
+                                        {% endfor %}
+                                    </select>
+                                <input
+                                    name="quantity"
+                                    type="number"
+                                    step="1"
+                                    placeholder="Quantity"
+                                    class="input input-bordered input-sm join-item w-24 focus:outline-primary"
+                                />
+                                 <button type="submit" class="btn btn-sm btn-success join-item">
+                                     Buy
+                                 </button>
+                                </div>
+                            </form>
+
+
                     </td>
                 </tr>
             {% else %}

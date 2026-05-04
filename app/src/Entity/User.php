@@ -50,10 +50,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'employee')]
     private Collection $assignedTasks;
 
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'manager')]
+    private Collection $contracts;
+
     public function __construct()
     {
         $this->createdTasks = new ArrayCollection();
         $this->assignedTasks = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -223,6 +230,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->assignedTasks->removeElement($task)) {
             if ($task->getEmployee() === $this) {
                 $task->setEmployee(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setManager($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            // set the owning side to null (unless already changed)
+            if ($contract->getManager() === $this) {
+                $contract->setManager(null);
             }
         }
 
