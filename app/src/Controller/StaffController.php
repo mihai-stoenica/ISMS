@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\StaffService;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,16 +19,23 @@ final class StaffController extends AbstractController
     public function index(
         UserRepository $userRepository,
         Request $request,
+        PaginatorInterface $paginator
     ): Response
     {
         $status = $request->query->get('status');
         $type = $request->query->get('type');
         $search = $request->query->get('search');
 
-        $users = $userRepository->findBySearchParams($status, $type, $search);
+        $query = $userRepository->findBySearchParams($status, $type, $search);
+
+        $paginator = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            7
+        );
 
         return $this->render('staff/index.html.twig', [
-            'users' => $users,
+            'users' => $paginator,
         ]);
     }
 

@@ -17,7 +17,7 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function findBySearch(?string $search, ?int $categoryId) : Query
+    public function findBySearch(?string $search, ?string $categoryId = null) : Query
     {
         $qb = $this->createQueryBuilder('p');
 

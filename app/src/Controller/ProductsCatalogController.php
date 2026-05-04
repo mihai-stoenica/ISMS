@@ -39,7 +39,7 @@ final class ProductsCatalogController extends AbstractController
         $pagination = $paginator->paginate(
             $query,
             $request->query->getInt('page', 1),
-            10
+            7
         );
 
         $form = null;
