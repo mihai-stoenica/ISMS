@@ -43,6 +43,12 @@ class ProductFixtures extends Fixture implements DependentFixtureInterface
             $categories[] = $category;
         }
 
+        $allLocations = array_filter(Location::cases(), fn($loc) => !$loc->isRamp());
+        shuffle($allLocations);
+
+        $occupiedLocations = [];
+        $products = [];
+
         for ($i = 1; $i <= 50; $i++) {
             $product = new Product();
             $product->setName("Industrial Component #" . str_pad($i, 3, '0', STR_PAD_LEFT));
@@ -55,10 +61,12 @@ class ProductFixtures extends Fixture implements DependentFixtureInterface
 
             $product->setCategory($categories[array_rand($categories)]);
 
-            $locations = Location::cases();
-            $product->setLocation($locations[array_rand($locations)]);
+            $loc = array_pop($allLocations);
+            $product->setLocation($loc);
+            $occupiedLocations[$loc->value] = true;
 
             $manager->persist($product);
+            $products[] = $product;
 
             $randomKeys = array_rand($suppliers, mt_rand(1, 10));
 
@@ -76,16 +84,24 @@ class ProductFixtures extends Fixture implements DependentFixtureInterface
 
                 $manager->persist($sp);
             }
+        }
 
-            if ($i % 5 === 0) {
+        foreach ($products as $index => $prod) {
+            if (($index + 1) % 5 === 0) {
                 $task = new Task();
-                $task->setProduct($product);
+                $task->setProduct($prod);
                 $task->setManager($managerUser);
                 $task->setEmployee($employeeUser);
                 $task->setStatus(TaskStatus::PENDING);
                 $task->setCreatedAt(new \DateTimeImmutable());
-                $task->setSource(Location::A1);
-                $task->setDestination(Location::A2);
+                $task->setSource($prod->getLocation());
+
+                if (!empty($allLocations)) {
+                    $dest = array_pop($allLocations);
+                    $task->setDestination($dest);
+                } else {
+                    $task->setDestination(Location::R1);
+                }
 
                 $manager->persist($task);
             }

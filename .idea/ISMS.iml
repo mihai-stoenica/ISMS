@@ -134,6 +134,8 @@
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/symfony/mailtrap-mailer" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/doctrine/data-fixtures" />
       <excludeFolder url="file://$MODULE_DIR$/app/vendor/doctrine/doctrine-fixtures-bundle" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/knplabs/knp-components" />
+      <excludeFolder url="file://$MODULE_DIR$/app/vendor/knplabs/knp-paginator-bundle" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

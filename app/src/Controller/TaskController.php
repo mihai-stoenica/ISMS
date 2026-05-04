@@ -10,6 +10,7 @@ use App\Repository\ProductRepository;
 use App\Repository\TaskRepository;
 use App\Service\TaskService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,6 +27,7 @@ final class TaskController extends AbstractController
         Request $request,
         TaskService $taskService,
         ProductRepository $productRepository,
+        PaginatorInterface $paginator,
     ): Response
     {
         $status = $request->query->get('status');
@@ -63,13 +65,20 @@ final class TaskController extends AbstractController
                 return $this->redirectToRoute('app_task');
             }
 
-            $tasks = $taskRepository->findBySearchParams($status, $search);
+            $query = $taskRepository->findBySearchParams($status, $search);
+
         } else {
-            $tasks = $taskRepository->findBySearchParams($status, $search, $order, $user);
+            $query = $taskRepository->findBySearchParams($status, $search, $order, $user);
         }
 
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('task/index.html.twig', [
-            'tasks' => $tasks,
+            'tasks' => $pagination,
             ...($form ? ['form' => $form->createView()] : []),
         ]);
     }

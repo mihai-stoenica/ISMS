@@ -9,6 +9,7 @@ use App\Repository\ProductRepository;
 use App\Repository\SupplierProductRepository;
 use App\Service\ProductsCatalogService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,12 +24,19 @@ final class ProductsCatalogController extends AbstractController
     public function index(
         ProductRepository $productRepository,
         Request $request,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        PaginatorInterface $paginator,
     ): Response
     {
         $search = $request->query->get('search');
 
-        $products = $productRepository->findBySearch($search);
+        $query = $productRepository->findBySearch($search);
+
+        $pagination = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
 
         $form = null;
 
@@ -49,7 +57,7 @@ final class ProductsCatalogController extends AbstractController
         }
 
         return $this->render('products_catalog/index.html.twig', [
-           'products' => $products,
+           'products' => $pagination,
             ...($form ? ['form' => $form->createView()] : []),
         ]);
     }

@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Task;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,7 +18,7 @@ class TaskRepository extends ServiceEntityRepository
         parent::__construct($registry, Task::class);
     }
 
-    public function findBySearchParams(?string $status, ?string $search, ?string $order = null, ?User $employee = null): array
+    public function findBySearchParams(?string $status, ?string $search, ?string $order = null, ?User $employee = null): Query
     {
         $queryBuilder = $this->createQueryBuilder('t');
 
@@ -47,6 +48,6 @@ class TaskRepository extends ServiceEntityRepository
                 ->orderBy('t.created_at', 'ASC');
 
         }
-        return $queryBuilder->getQuery()->getResult();
+        return $queryBuilder->getQuery();
     }
 }
