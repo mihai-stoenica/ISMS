@@ -151,6 +151,7 @@ final class OrderController extends AbstractController
         }
 
         $order->setStatus(OrderStatus::DONE);
+        $order->setCompletedAt(new \DateTimeImmutable());
         $em->flush();
 
         $this->addFlash('success', "Order #{$order->getId()} approved. Stock levels updated.");

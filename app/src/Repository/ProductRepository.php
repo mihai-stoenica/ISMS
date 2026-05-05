@@ -32,4 +32,14 @@ class ProductRepository extends ServiceEntityRepository
         }
         return $qb->getQuery();
     }
+
+    public function findOccupiedSlots() : int
+    {
+        $qb = $this->createQueryBuilder('p');
+
+        $qb->select('COUNT(p.id)')
+            ->where('p.location IS NOT NULL');
+
+        return $qb->getQuery()->getSingleScalarResult();
+    }
 }
