@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Entity\User;
+use App\Enum\Location;
 use App\Form\ProductType;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
@@ -30,6 +31,7 @@ final class ProductsCatalogController extends AbstractController
         CategoryRepository $categoryRepository,
     ): Response
     {
+
         $search = $request->query->get('search');
         $categoryId = $request->query->get('categoryId');
 
@@ -111,10 +113,13 @@ final class ProductsCatalogController extends AbstractController
     ) : Response
     {
         $sellers = $supplierProductRepository->findSellersForProduct($product);
+        $ramps = array_filter(Location::cases(), fn(Location $loc) => $loc->isRamp());
 
         return $this->render('products_catalog/buy.html.twig', [
             'product' => $product,
             'sellers' => $sellers,
+            'ramps' => $ramps,
+
         ]);
     }
 

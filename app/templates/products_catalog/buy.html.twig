@@ -26,9 +26,16 @@
                         <td class="text-success font-mono font-bold">
                             ${{ sp.purchasePrice|number_format(2) }}
                         </td>
-                        <td>
-                            <form action="{{ path('cart_add', {'id': product.id}) }}" method="POST" class="flex justify-center">
+                        <td class="text-center">
+                            <form action="{{ path("app_contract_buy", {"supplierId": sp.supplier.id, "productId": sp.product.id}) }}" method="POST" class="flex justify-center">
                                 <div class="join">
+                                    <select name="delivery_ramp" class="select select-bordered select-sm join-item focus:outline-primary" required>
+                                        <option disabled selected value="">Select Ramp</option>
+                                        {% for ramp in ramps %}
+                                            <option value="{{ ramp.value }}">Ramp {{ ramp.value }}</option>
+                                        {% endfor %}
+                                    </select>
+
                                     <input
                                         name="quantity"
                                         type="number"
@@ -38,6 +45,7 @@
                                         class="input input-bordered input-sm join-item w-24 focus:outline-primary"
                                         required
                                     />
+
                                     <button type="submit" class="btn btn-sm btn-success join-item">
                                         Buy
                                     </button>
