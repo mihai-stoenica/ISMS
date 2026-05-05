@@ -1,5 +1,154 @@
-{% extends './base.html.twig' %}
+{% extends 'base.html.twig' %}
+
+{% block title %}WareBros{% endblock %}
 
 {% block body %}
-    <h1>Home</h1>
+    <div class="p-8 h-full overflow-y-auto">
+        <div class="max-w-5xl mx-auto space-y-10">
+
+            <header class="text-center space-y-4">
+                <h1 class="text-5xl font-extrabold tracking-tight">{{ warehouse_name }}</h1>
+                <p class="text-xl max-w-2xl mx-auto opacity-70">{{ description }}</p>
+
+                <div class="flex justify-center gap-4 pt-4">
+                    <div class="badge badge-lg badge-outline p-4">📍 {{ address }}</div>
+                    <div class="badge badge-lg badge-primary p-4">📞 {{ contact }}</div>
+                    <div class="badge badge-lg badge-ghost p-4">🕒 {{ working_hours }}</div>
+                </div>
+            </header>
+
+            <section>
+                <div class="carousel w-full rounded-box h-80 shadow-2xl">
+                    <div id="slide1" class="carousel-item relative w-full">
+                        <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200" class="w-full object-cover" alt="Warehouse Inside" />
+                        <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                            <a href="#slide2" class="btn btn-circle">❮</a>
+                            <a href="#slide2" class="btn btn-circle">❯</a>
+                        </div>
+                    </div>
+                    <div id="slide2" class="carousel-item relative w-full">
+                        <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&q=80&w=1200" class="w-full object-cover" alt="Warehouse Outside" />
+                        <div class="absolute left-5 right-5 top-1/2 flex -translate-y-1/2 transform justify-between">
+                            <a href="#slide1" class="btn btn-circle">❮</a>
+                            <a href="#slide1" class="btn btn-circle">❯</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="space-y-6">
+                <div class="flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl font-bold">Warehouse Mini-Map</h2>
+                        <p class="opacity-70">Visual guide for Sectors A through J and Loading Ramps.</p>
+                    </div>
+                    <div class="flex gap-4 text-xs font-bold uppercase">
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 bg-primary rounded-sm"></span> Storage</div>
+                        <div class="flex items-center gap-1"><span class="w-3 h-3 bg-secondary rounded-sm"></span> Ramps</div>
+                    </div>
+                </div>
+
+                <div class="bg-base-300 p-6 rounded-box shadow-inner overflow-x-auto">
+                    <div class="grid grid-cols-11 gap-2 min-w-[600px]">
+
+                        <div class="w-8 h-8"></div>
+                        {% for i in 1..10 %}
+                            <div class="w-8 h-8 flex items-center justify-center font-bold opacity-50 text-xs">{{ i }}</div>
+                        {% endfor %}
+
+                        {% set rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'] %}
+                        {% for row in rows %}
+
+                            <div class="w-8 h-8 flex items-center justify-center font-bold opacity-50">{{ row }}</div>
+
+                            {% for col in 1..10 %}
+                                <div class="group relative">
+                                    <div class="w-8 h-8 bg-primary/20 border border-primary/30 rounded-sm flex items-center justify-center text-[10px] hover:bg-primary hover:text-primary-content transition-colors cursor-help">
+                                        {{ row }}{{ col }}
+                                    </div>
+
+                                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-neutral text-neutral-content text-[10px] py-1 px-2 rounded whitespace-nowrap z-10">
+                                        Location {{ row }}{{ col }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endfor %}
+
+                        <div class="col-span-11 mt-4 pt-4 border-t border-base-content/10 flex items-center gap-4">
+                            <span class="font-bold opacity-50 text-xs w-8">RAMPS:</span>
+                            <div class="flex gap-2">
+                                <div class="w-16 h-8 bg-secondary/20 border border-secondary/40 rounded-sm flex items-center justify-center font-bold text-xs">R1</div>
+                                <div class="w-16 h-8 bg-secondary/20 border border-secondary/40 rounded-sm flex items-center justify-center font-bold text-xs">R2</div>
+                            </div>
+                            <p class="text-[10px] opacity-60">Primary loading zones for Supplier vehicles.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-base-300 my-12" />
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
+                <div class="card bg-base-200 shadow-xl border border-base-300">
+                    <div class="card-body">
+                        <h2 class="card-title text-2xl">Leave a Review</h2>
+                        <p class="text-sm opacity-70">Share your experience with the WareBros team.</p>
+
+                        <form action="{{ path('app_home') }}" method="POST" class="space-y-4 mt-4">
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold">Rating</span></label>
+                                <div class="rating rating-md">
+                                    <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" />
+                                    <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" checked />
+                                </div>
+                            </div>
+
+                            <div class="form-control">
+                                <label class="label"><span class="label-text font-bold">Your Feedback</span></label>
+                                <textarea name="review_content" required class="textarea textarea-bordered h-24 focus:outline-primary" placeholder="How was the loading/unloading process?"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-full">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold">Warehouse Wall</h2>
+
+                    <div class="overflow-y-auto max-h-[550px] pr-4 space-y-4">
+                        {% for review in reviews %}
+                            <div class="chat chat-start">
+                                <div class="chat-image avatar">
+                                    <div class="w-10 rounded-full border border-base-300">
+                                        <img src="https://ui-avatars.com/api/?name={{ review.author.name|url_encode }}&background=random" />
+                                    </div>
+                                </div>
+                                <div class="chat-header">
+                                    {{ review.author.name }}
+                                    <time class="text-xs opacity-50 ml-2">{{ review.createdAt|date('d M, H:i') }}</time>
+                                </div>
+                                <div class="chat-bubble bg-base-100 text-base-content border border-base-300 shadow-sm">
+                                    {{ review.content }}
+                                </div>
+                                <div class="chat-footer opacity-70 mt-1 flex gap-0.5">
+                                    {% for i in 1..5 %}
+                                        <span class="text-xs {{ i <= review.rating ? 'text-orange-400' : 'text-base-300' }}">★</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="bg-base-200 p-8 rounded-box text-center border-2 border-dashed border-base-300">
+                                <p class="italic opacity-50">The wall is currently empty. Be the first to leave a review!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
 {% endblock %}
