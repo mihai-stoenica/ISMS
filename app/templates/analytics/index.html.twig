@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block body %}
+    <div class="flex h-screen bg-base-200 overflow-hidden">
+        <aside class="w-64 bg-base-100 border-r p-4 space-y-4">
+            <h2 class="text-xl font-bold">Analytics Hub</h2>
+            <nav class="flex flex-col gap-2">
+                <a href="{{ path('app_analytics', {type: 'occupation'}) }}"
+                   class="btn {{ currentType == 'occupation' ? 'btn-primary' : 'btn-ghost' }} justify-start">
+                    Occupation level
+                </a>
+                <a href="{{ path('app_analytics', {type: 'financial'}) }}"
+                   class="btn {{ currentType == 'financial' ? 'btn-primary' : 'btn-ghost' }} justify-start">
+                    Financials
+                </a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8 overflow-y-auto">
+            <form method="GET" action="{{ path('app_analytics', {type: currentType}) }}" class="bg-base-100 p-4 rounded-box shadow mb-8 flex gap-4 items-end">
+                <div class="form-control">
+                    <label class="label"><span class="label-text">View By</span></label>
+                    <select name="range" class="select select-bordered select-sm">
+                        <option value="day" {{ currentRange == 'day' ? 'selected' }}>Daily</option>
+                        <option value="month" {{ currentRange == 'month' ? 'selected' }}>Monthly</option>
+                    </select>
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">Start Date</span></label>
+                    <input type="date" name="start" value="{{ app.request.query.get('start') }}" class="input input-bordered input-sm">
+                </div>
+                <div class="form-control">
+                    <label class="label"><span class="label-text">End Date</span></label>
+                    <input type="date" name="end" value="{{ app.request.query.get('end') }}" class="input input-bordered input-sm">
+                </div>
+                <button type="submit" class="btn btn-success btn-sm">Update Analytics</button>
+                <a href="#" class="btn btn-outline btn-sm">Export CSV</a>
+            </form>
+
+            <div class="grid grid-cols-1 gap-6">
+                {% if currentType == 'occupation' and extraData is not empty %}
+                    <div class="stats shadow w-full mb-8">
+                        <div class="stat">
+                            <div class="stat-title">Current Occupancy</div>
+                            <div class="stat-value text-primary">{{ extraData.percent }}%</div>
+                            <div class="stat-desc">Based on {{ extraData.total }} total slots</div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="card bg-base-100 shadow-xl p-6 mb-20">
+                    <h3 class="font-bold text-lg mb-4">Diagram of Sums Spent</h3>
+                    <div class="h-120">
+                        {{ render_chart(chart) }}
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+{% endblock %}
