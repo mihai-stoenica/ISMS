@@ -38,12 +38,17 @@ class ContractService
         $contract->setProduct($product);
         $contract->setQuantity($quantity);
 
+
         $contract->setRamp($ramp);
 
         $contract->setDate(new \DateTime());
         $contract->setStatus(ContractStatus::PENDING);
 
         $totalCost = $product->getSellingPrice() * $quantity;
+        $maxAllowedCost = 2147483647;
+        if ($totalCost > $maxAllowedCost) {
+            return ['success' => false, 'message' => 'This value is too large. Please reduce the quantity.'];
+        }
         $contract->setTotalCost((string) $totalCost);
 
         $this->entityManager->persist($contract);
