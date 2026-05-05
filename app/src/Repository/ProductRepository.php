@@ -32,4 +32,15 @@ class ProductRepository extends ServiceEntityRepository
         }
         return $qb->getQuery();
     }
+    /**
+     * @return Product[] Returns an array of Products that are below their threshold
+     */
+    public function findLowStockProducts(): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.currentStock <= p.lowStockThreshold')
+            ->orderBy('p.currentStock', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

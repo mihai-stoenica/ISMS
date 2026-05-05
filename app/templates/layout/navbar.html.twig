@@ -8,7 +8,7 @@
 
         {% if is_granted('ROLE_MANAGER') %}
 
-            <a href="#" class="btn btn-ghost btn-sm">Stock</a>
+            <a href="{{ path('app_stock_index') }}" class="btn btn-ghost btn-sm">Stock</a>
             <a href="{{ path('app_staff') }}" class="btn btn-ghost btn-sm">Staff</a>
             <a href="{{ path('app_task') }}" class="btn btn-ghost btn-sm">Tasks</a>
             <a href="{{ path('app_contract_index') }}" class="btn btn-ghost btn-sm">Contracts</a>

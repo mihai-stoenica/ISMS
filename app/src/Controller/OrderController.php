@@ -7,6 +7,7 @@ use App\Entity\ProductOrder;
 use App\Enum\OrderStatus;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use App\Service\StockAlertService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -127,17 +128,20 @@ final class OrderController extends AbstractController
 
     #[Route('/manager/order/{id}/approve', name: 'app_order_approve', methods: ['POST'])]
     #[IsGranted('ROLE_MANAGER')]
-    public function approveOrder(Order $order, EntityManagerInterface $em): Response
+    public function approveOrder(Order $order, EntityManagerInterface $em, StockAlertService $alertService): Response
     {
         if ($order->getStatus() !== OrderStatus::PENDING) {
             $this->addFlash('error', 'This order has already been processed.');
             return $this->redirectToRoute('app_manager_orders');
         }
 
+        $products=[];
+
         foreach ($order->getProductOrders() as $item) {
             $product = $item->getProduct();
             $requestedQty = $item->getQuantity();
 
+            $products[]=$product;
 
             if ($product->getCurrentStock() < $requestedQty) {
                 $this->addFlash('error', "Stock alert: Only {$product->getCurrentStock()} left for {$product->getName()}.");
@@ -148,7 +152,10 @@ final class OrderController extends AbstractController
             if ($product->getCurrentStock()==0) {
                 $product->setLocation(null);
             }
+
         }
+
+        $alertService->checkAndSendAlert($products);
 
         $order->setStatus(OrderStatus::DONE);
         $em->flush();
