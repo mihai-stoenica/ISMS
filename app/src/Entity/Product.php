@@ -46,10 +46,17 @@ class Product
     #[ORM\OneToMany(targetEntity: SupplierProduct::class, mappedBy: 'product')]
     private Collection $supplierProducts;
 
+    /**
+     * @var Collection<int, Contract>
+     */
+    #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'product')]
+    private Collection $contracts;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
         $this->supplierProducts = new ArrayCollection();
+        $this->contracts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -196,5 +203,35 @@ class Product
             }
         }
         return false;
+    }
+
+    /**
+     * @return Collection<int, Contract>
+     */
+    public function getContracts(): Collection
+    {
+        return $this->contracts;
+    }
+
+    public function addContract(Contract $contract): static
+    {
+        if (!$this->contracts->contains($contract)) {
+            $this->contracts->add($contract);
+            $contract->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContract(Contract $contract): static
+    {
+        if ($this->contracts->removeElement($contract)) {
+            // set the owning side to null (unless already changed)
+            if ($contract->getProduct() === $this) {
+                $contract->setProduct(null);
+            }
+        }
+
+        return $this;
     }
 }
