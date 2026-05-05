@@ -47,6 +47,12 @@ class Product
     private Collection $supplierProducts;
 
     /**
+     * @var Collection<int, ProductOrder>
+     */
+    #[ORM\OneToMany(targetEntity: ProductOrder::class, mappedBy: 'product')]
+    private Collection $productOrders;
+
+    /**
      * @var Collection<int, Contract>
      */
     #[ORM\OneToMany(targetEntity: Contract::class, mappedBy: 'product')]
@@ -56,6 +62,7 @@ class Product
     {
         $this->tasks = new ArrayCollection();
         $this->supplierProducts = new ArrayCollection();
+        $this->productOrders = new ArrayCollection();
         $this->contracts = new ArrayCollection();
     }
 
@@ -158,7 +165,7 @@ class Product
         return $this->location;
     }
 
-    public function setLocation(Location $location): static
+    public function setLocation(?Location $location): static
     {
         $this->location = $location;
 
@@ -186,7 +193,6 @@ class Product
     public function removeSupplierProduct(SupplierProduct $supplierProduct): static
     {
         if ($this->supplierProducts->removeElement($supplierProduct)) {
-            // set the owning side to null (unless already changed)
             if ($supplierProduct->getProduct() === $this) {
                 $supplierProduct->setProduct(null);
             }
@@ -229,6 +235,35 @@ class Product
             // set the owning side to null (unless already changed)
             if ($contract->getProduct() === $this) {
                 $contract->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductOrder>
+     */
+    public function getProductOrders(): Collection
+    {
+        return $this->productOrders;
+    }
+
+    public function addProductOrder(ProductOrder $productOrder): static
+    {
+        if (!$this->productOrders->contains($productOrder)) {
+            $this->productOrders->add($productOrder);
+            $productOrder->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductOrder(ProductOrder $productOrder): static
+    {
+        if ($this->productOrders->removeElement($productOrder)) {
+            if ($productOrder->getProduct() === $this) {
+                $productOrder->setProduct(null);
             }
         }
 
