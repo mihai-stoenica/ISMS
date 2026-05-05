@@ -8,13 +8,16 @@ use App\Enum\Location;
 use App\Repository\ContractRepository;
 use App\Service\ContractService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\ExpressionLanguage\Expression;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class ContractController extends AbstractController
 {
     #[Route('/contract/buy/{supplierId}/{productId}', name: 'app_contract_buy', methods: ['POST'])]
+    #[IsGranted('ROLE_MANAGER')]
     public function buyProduct(
         int $supplierId,
         int $productId,
@@ -32,10 +35,9 @@ final class ContractController extends AbstractController
 
         if (!$ramp) {
             $this->addFlash('error', 'Please select a valid delivery ramp.');
-            return $this->redirectToRoute('app_home'); // or wherever your catalog is
+            return $this->redirectToRoute('app_home');
         }
 
-        // 4. Pass the $ramp Enum to the service
         $result = $contractService->createContract($manager, $supplierId, $productId, $quantity, $ramp);
 
         if (!$result['success']) {
@@ -48,6 +50,7 @@ final class ContractController extends AbstractController
     }
 
     #[Route('/contracts', name: 'app_contract_index', methods: ['GET'])]
+    #[IsGranted(new Expression('is_granted("ROLE_MANAGER") or is_granted("ROLE_SUPPLIER")'))]
     public function index(ContractRepository $contractRepo): Response
     {
         /** @var User $user */
@@ -66,6 +69,7 @@ final class ContractController extends AbstractController
     }
 
     #[Route('/contract/{id}/accept', name: 'app_contract_accept', methods: ['POST'])]
+    #[IsGranted('ROLE_SUPPLIER')]
     public function acceptContract(int $id, ContractService $contractService): Response
     {
         /** @var User $user */
@@ -83,6 +87,7 @@ final class ContractController extends AbstractController
     }
 
     #[Route('/contract/{id}/reject', name: 'app_contract_reject', methods: ['POST'])]
+    #[IsGranted('ROLE_SUPPLIER')]
     public function rejectContract(int $id, ContractService $contractService): Response
     {
         /** @var User $user */
