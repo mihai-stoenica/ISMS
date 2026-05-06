@@ -6,6 +6,7 @@ use App\Enum\Location;
 use App\Repository\ContractRepository;
 use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
 use Symfony\UX\Chartjs\Model\Chart;
 
@@ -162,4 +163,64 @@ class AnalyticsService
 
         $chart->setOptions($options);
     }
+
+    public function getRawSupplierData(?string $start, ?string $end): array
+    {
+        $startDate = $start ? new \DateTime($start) : null;
+        $endDate = $end ? new \DateTime($end) : null;
+
+        return $this->contractRepo->getSupplierEfficiency($startDate, $endDate);
+    }
+
+    public function createCSV(string $type, string $range, ?string $start, ?string $end): StreamedResponse
+    {
+        $response = new StreamedResponse(function () use ($type, $range, $start, $end) {
+            $handle = fopen('php://output', 'w+');
+
+            if ($type === 'financial') {
+                fputcsv($handle, ['Period', 'Spent ($)', 'Gained ($)', 'Net Profit ($)']);
+
+                $data = $this->getDynamicChartFinancialData($range, $start, $end);
+
+                foreach ($data['labels'] as $index => $period) {
+                    fputcsv($handle, [
+                        $period,
+                        $data['spent'][$index],
+                        $data['gained'][$index],
+                        $data['profit'][$index]
+                    ]);
+                }
+            } elseif ($type === 'suppliers') {
+                fputcsv($handle, ['Supplier Name', 'Total Contracts', 'Total Investment ($)', 'Total Revenue ($)', 'Product Diversity']);
+
+                $rawData = $this->getRawSupplierData($start, $end);
+
+                foreach ($rawData as $row) {
+                    fputcsv($handle, [
+                        $row['supplier_name'],
+                        $row['total_contracts'],
+                        $row['total_investment'],
+                        $row['total_revenue'],
+                        $row['product_diversity']
+                    ]);
+                }
+            } elseif ($type === 'occupation') {
+                fputcsv($handle, ['Status', 'Total Slots']);
+
+                $data = $this->getOccupationStats();
+
+                fputcsv($handle, ['Occupied', $data['data'][0]]);
+                fputcsv($handle, ['Empty', $data['data'][1]]);
+            }
+
+            fclose($handle);
+        });
+
+        $dateStamp = date('Y-m-d');
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', "attachment; filename=\"analytics_{$type}_{$dateStamp}.csv\"");
+
+        return $response;
+    }
+
 }

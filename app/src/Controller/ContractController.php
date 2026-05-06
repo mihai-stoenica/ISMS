@@ -46,7 +46,7 @@ final class ContractController extends AbstractController
             $this->addFlash('success', $result['message']);
         }
 
-        return $this->redirectToRoute('app_home');
+        return $this->redirectToRoute('app_stock_index');
     }
 
     #[Route('/contracts', name: 'app_contract_index', methods: ['GET'])]

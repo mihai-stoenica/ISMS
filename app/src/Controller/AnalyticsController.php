@@ -6,6 +6,7 @@ use App\Service\AnalyticsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -31,5 +32,20 @@ final class AnalyticsController extends AbstractController
             'extraData' => $extraData ?? null,
             'currentType' => $type,
         ]);
+    }
+
+    #[Route('/analytics/export/{type}', name: 'app_analytics_export')]
+    #[IsGranted('ROLE_MANAGER')]
+    public function exportCsv(
+        Request $request,
+        AnalyticsService $service,
+        string $type
+    ): StreamedResponse
+    {
+        $range = $request->query->get('range', 'month');
+        $start = $request->query->get('start');
+        $end = $request->query->get('end');
+
+       return $service->createCSV($type, $range, $start, $end);
     }
 }

@@ -21,8 +21,6 @@ class StockService
      *
      * @return array{success: bool, message: string}
      */
-    #[Route('/threshold/{id}', name: 'app_stock_update_threshold', methods: ['POST'])]
-    #[IsGranted('ROLE_MANAGER')]
     public function updateThreshold(Product $product, int $newThreshold): array
     {
         if ($newThreshold < 0) {
