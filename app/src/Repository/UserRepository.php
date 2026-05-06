@@ -58,4 +58,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         }
         return $queryBuilder->getQuery();
     }
+    /**
+     * @return User[] Returns an array of Users with the Manager role
+     */
+    public function findManagers(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.roles LIKE :role')
+            ->setParameter('role', '%"ROLE_MANAGER"%')
+            ->getQuery()
+            ->getResult();
+    }
 }

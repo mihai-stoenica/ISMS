@@ -19,6 +19,11 @@ class ProductsCatalogService
         if(!$price || $price < 0.01) {
             return "The price must be a positive number";
         }
+        $maxAllowedPrice = 99999999.99;
+        if ((float) $price > $maxAllowedPrice) {
+            return "This price is too large. Please enter a smaller amount.";
+        }
+
         $supplierProduct = new SupplierProduct();
         $supplierProduct->setProduct($product);
         $supplierProduct->setSupplier($user->getSupplierProfile());
