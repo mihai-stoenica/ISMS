@@ -50,7 +50,10 @@
                             <th class="text-lg text-center">Location</th>
                             <th class="text-lg text-center">Current Stock</th>
                             <th class="text-lg text-center">Alert Limit</th>
-                            <th class="text-lg text-center">Actions</th>
+
+                            {% if is_granted('ROLE_MANAGER') %}
+                                <th class="text-lg text-center">Actions</th>
+                            {% endif %}
                         </tr>
                         </thead>
                         <tbody>
@@ -73,29 +76,40 @@
                                         <span class="badge badge-error badge-sm mt-1">Action Needed</span>
                                     {% endif %}
                                 </td>
-                                <td>
-                                    <form action="{{ path('app_stock_update_threshold', {'id': product.id}) }}" method="POST" class="flex justify-center">
-                                        <div class="join">
-                                            <input
-                                                type="number"
-                                                name="threshold"
-                                                value="{{ product.lowStockThreshold }}"
-                                                min="0"
-                                                class="input input-sm input-bordered join-item w-20 focus:outline-primary"
-                                            />
-                                            <button type="submit" class="btn btn-sm btn-neutral join-item">Set</button>
-                                        </div>
-                                    </form>
-                                </td>
                                 <td class="text-center">
-                                    <a href="{{ path('app_products_catalog', {'search': product.name}) }}" class="btn btn-sm btn-primary">
-                                        Restock
-                                    </a>
+                                    {% if is_granted('ROLE_MANAGER') %}
+                                        <form action="{{ path('app_stock_update_threshold', {'id': product.id}) }}" method="POST" class="flex justify-center">
+                                            <div class="join">
+                                                <input
+                                                    type="number"
+                                                    name="threshold"
+                                                    value="{{ product.lowStockThreshold }}"
+                                                    min="0"
+                                                    class="input input-sm input-bordered join-item w-20 focus:outline-primary"
+                                                />
+                                                <button type="submit" class="btn btn-sm btn-neutral join-item">Set</button>
+                                            </div>
+                                        </form>
+                                    {% else %}
+                                        <span class="font-mono text-lg text-gray-500 font-semibold">
+                                            {{ product.lowStockThreshold }}
+                                        </span>
+                                    {% endif %}
                                 </td>
+
+                                {% if is_granted('ROLE_MANAGER') %}
+                                    <td class="text-center">
+                                        <a href="{{ path('app_products_catalog', {'search': product.name}) }}" class="btn btn-sm btn-primary">
+                                            Restock
+                                        </a>
+                                    </td>
+                                {% endif %}
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="5" class="text-center italic text-gray-500 py-10">No products found matching filters.</td>
+                                <td colspan="{{ is_granted('ROLE_MANAGER') ? 5 : 4 }}" class="text-center italic text-gray-500 py-10">
+                                    No products found matching filters.
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>

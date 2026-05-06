@@ -18,7 +18,7 @@
 
         {% elseif is_granted('ROLE_STAFF') %}
 
-            <a href="#" class="btn btn-ghost btn-sm">Stock</a>
+            <a href="{{ path('app_stock_index') }}" class="btn btn-ghost btn-sm">Stock</a>
             <a href="{{ path('app_task') }}" class="btn btn-ghost btn-sm">Tasks</a>
 
         {% elseif is_granted('ROLE_SUPPLIER') %}
