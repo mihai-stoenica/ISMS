@@ -13,13 +13,19 @@
                 </a>
                 <a href="{{ path('app_analytics', {type: 'financial'}) }}"
                    class="btn {{ currentType == 'financial' ? 'btn-primary' : 'btn-ghost' }} justify-start">
-                    Financials
+                    Financial
+                </a>
+                <a href="{{ path('app_analytics', {type: 'suppliers'}) }}"
+                   class="btn {{ currentType == 'suppliers' ? 'btn-primary' : 'btn-ghost' }} justify-start">
+                    Suppliers
                 </a>
             </nav>
         </aside>
 
         <main class="flex-1 p-8 overflow-y-auto">
+
             <form method="GET" action="{{ path('app_analytics', {type: currentType}) }}" class="bg-base-100 p-4 rounded-box shadow mb-8 flex gap-4 items-end">
+                {% if currentType != 'occupation' %}
                 <div class="form-control">
                     <label class="label"><span class="label-text">View By</span></label>
                     <select name="range" class="select select-bordered select-sm">
@@ -36,8 +42,10 @@
                     <input type="date" name="end" value="{{ app.request.query.get('end') }}" class="input input-bordered input-sm">
                 </div>
                 <button type="submit" class="btn btn-success btn-sm">Update Analytics</button>
+                {% endif %}
                 <a href="#" class="btn btn-outline btn-sm">Export CSV</a>
             </form>
+
 
             <div class="grid grid-cols-1 gap-6">
                 {% if currentType == 'occupation' and extraData is not empty %}
@@ -51,7 +59,6 @@
                 {% endif %}
 
                 <div class="card bg-base-100 shadow-xl p-6 mb-20">
-                    <h3 class="font-bold text-lg mb-4">Diagram of Sums Spent</h3>
                     <div class="h-120">
                         {{ render_chart(chart) }}
                     </div>
