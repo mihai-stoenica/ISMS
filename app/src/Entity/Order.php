@@ -33,6 +33,9 @@ class Order
     #[ORM\OneToMany(targetEntity: ProductOrder::class, mappedBy: 'order')]
     private Collection $productOrders;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $completedAt = null;
+
     public function __construct()
     {
         $this->productOrders = new ArrayCollection();
@@ -104,6 +107,18 @@ class Order
                 $productOrder->setOrder(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCompletedAt(): ?\DateTimeImmutable
+    {
+        return $this->completedAt;
+    }
+
+    public function setCompletedAt(\DateTimeImmutable $completedAt): static
+    {
+        $this->completedAt = $completedAt;
 
         return $this;
     }

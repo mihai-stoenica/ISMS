@@ -68,6 +68,8 @@ class ProductFixtures extends Fixture implements DependentFixtureInterface
             $manager->persist($product);
             $products[] = $product;
 
+            $this->addReference('product-' . $i, $product);
+
             $randomKeys = array_rand($suppliers, mt_rand(1, 10));
 
             $assignedSuppliers = is_array($randomKeys) ? $randomKeys : [$randomKeys];
