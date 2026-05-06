@@ -16,28 +16,37 @@ class OrderRepository extends ServiceEntityRepository
         parent::__construct($registry, Order::class);
     }
 
-    //    /**
-    //     * @return Order[] Returns an array of Order objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('o.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getSumsGained(string $groupBy, ?\DateTime $start, ?\DateTime $end)
+    {
+        $dateFormat = ($groupBy === 'day') ? '%Y-%m-%d' : '%Y-%m';
+        $conn = $this->getEntityManager()->getConnection();
 
-    //    public function findOneBySomeField($value): ?Order
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $sql = '
+        SELECT DATE_FORMAT(o.completed_at, :format) as period, SUM(o.total_price) as total
+        FROM `order` o
+        WHERE o.status = :status
+    ';
+
+        $params = [
+            'format' => $dateFormat,
+            'status' => 'DONE'
+        ];
+
+        if ($start && $end) {
+            $sql .= ' AND o.completed_at BETWEEN :start AND :end';
+            $params['start'] = $start->format('Y-m-d');
+            $params['end'] = $end->format('Y-m-d');
+        } elseif ($start) {
+            $sql .= ' AND o.completed_at >= :start';
+            $params['start'] = $start->format('Y-m-d');
+        } elseif ($end) {
+            $sql .= ' AND o.completed_at <= :end';
+            $params['end'] = $end->format('Y-m-d');
+        }
+
+        $sql .= ' GROUP BY period ORDER BY period ASC';
+
+        $resultSet = $conn->executeQuery($sql, $params);
+        return $resultSet->fetchAllAssociative();
+    }
 }
